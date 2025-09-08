@@ -21,11 +21,15 @@ const Hero = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 size="lg" 
-                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold px-8"
-                onClick={() => {
+                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold px-8 cursor-pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  console.log('Botão clicado!');
                   const element = document.getElementById('orcamento');
                   if (element) {
                     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  } else {
+                    console.log('Elemento orcamento não encontrado');
                   }
                 }}
               >
