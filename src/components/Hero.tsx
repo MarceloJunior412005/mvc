@@ -45,7 +45,11 @@ const Hero = () => {
 
           <div className="relative">
             <div className="relative z-10">
-              <Truck className="h-64 w-64 lg:h-80 lg:w-80 mx-auto text-secondary opacity-20" />
+              <img 
+                src="/lovable-uploads/41ee31ee-ad60-4284-bbb5-5b0be31145fe.png" 
+                alt="MVC Transportes - Logo" 
+                className="h-64 w-64 lg:h-80 lg:w-80 mx-auto object-contain opacity-90"
+              />
             </div>
             <div className="absolute inset-0 bg-gradient-to-tr from-secondary/20 to-transparent rounded-2xl"></div>
           </div>
