@@ -1,9 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
-
 const Header = () => {
-  return (
-    <header className="bg-background shadow-sm">
+  return <header className="bg-background shadow-sm">
       {/* Top bar with contact info */}
       <div className="bg-primary text-primary-foreground py-2">
         <div className="container mx-auto px-4">
@@ -11,17 +9,19 @@ const Header = () => {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-1">
                 <Phone className="h-4 w-4" />
-                <span>(11) 4788-5500</span>
+                <span>(11) 98206-6490</span>
               </div>
               <div className="flex items-center space-x-1">
                 <Mail className="h-4 w-4" />
-                <span>contato@mvctransportes.com.br</span>
+                <span>mvctransportestaboao@gmail.com
+              </span>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-1">
                 <Clock className="h-4 w-4" />
-                <span>Seg-Sex: 8h às 18h | Sáb: 8h às 12h</span>
+                <span>Seg-Sex: 8h às 18h 
+              </span>
               </div>
               <div className="flex items-center space-x-1">
                 <MapPin className="h-4 w-4" />
@@ -36,11 +36,7 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <img 
-              src="/lovable-uploads/41ee31ee-ad60-4284-bbb5-5b0be31145fe.png" 
-              alt="MVC Transportes - Logotipo" 
-              className="h-16 w-auto"
-            />
+            <img src="/lovable-uploads/41ee31ee-ad60-4284-bbb5-5b0be31145fe.png" alt="MVC Transportes - Logotipo" className="h-16 w-auto" />
           </div>
 
           <nav className="hidden md:flex items-center space-x-8">
@@ -63,8 +59,6 @@ const Header = () => {
           </Button>
         </div>
       </div>
-    </header>
-  );
+    </header>;
 };
-
 export default Header;
