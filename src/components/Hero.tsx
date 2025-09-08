@@ -22,7 +22,12 @@ const Hero = () => {
               <Button 
                 size="lg" 
                 className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold px-8"
-                onClick={() => document.getElementById('orcamento')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => {
+                  const element = document.getElementById('orcamento');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
               >
                 Fazer Orçamento Grátis
               </Button>
