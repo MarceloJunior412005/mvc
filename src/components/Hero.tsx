@@ -21,7 +21,7 @@ const Hero = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 size="lg" 
-                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold px-8 cursor-pointer"
+                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold"
                 onClick={(e) => {
                   e.preventDefault();
                   console.log('Botão clicado!');
