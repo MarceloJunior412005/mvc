@@ -16,11 +16,10 @@ const Hero = () => {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 relative z-20">
-              <a href="#orcamento" className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/90 h-11 px-8 font-semibold">
+            <div className="relative z-20">
+              <a href="#orcamento" className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/90 h-11 px-8 font-semibold w-fit">
                 Fazer Orçamento Grátis
               </a>
-              
             </div>
 
             <div className="flex items-center space-x-8 pt-4">
