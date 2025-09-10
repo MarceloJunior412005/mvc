@@ -10,12 +10,6 @@ const Services = () => {
       features: ["Carga seca", "Carga refrigerada", "Transporte especial"]
     },
     {
-      icon: Package,
-      title: "Logística Integrada",
-      description: "Soluções completas de armazenagem, distribuição e gerenciamento de estoque.",
-      features: ["Armazenagem", "Cross-docking", "Distribuição"]
-    },
-    {
       icon: MapPin,
       title: "Entrega Expressa",
       description: "Serviço de entrega rápida para cargas urgentes com rastreamento em tempo real.",
@@ -54,7 +48,7 @@ const Services = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
           {services.map((service, index) => (
             <Card key={index} className="border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
               <CardHeader className="text-center pb-4">
@@ -67,14 +61,6 @@ const Services = () => {
                 <CardDescription className="text-muted-foreground">
                   {service.description}
                 </CardDescription>
-                <div className="space-y-2">
-                  {service.features.map((feature, featureIndex) => (
-                    <div key={featureIndex} className="flex items-center justify-center space-x-2">
-                      <div className="w-2 h-2 bg-secondary rounded-full"></div>
-                      <span className="text-sm text-muted-foreground">{feature}</span>
-                    </div>
-                  ))}
-                </div>
               </CardContent>
             </Card>
           ))}

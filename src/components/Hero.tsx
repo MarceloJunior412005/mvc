@@ -1,4 +1,4 @@
-import { Shield, Clock, Star } from "lucide-react";
+import { Shield, Clock } from "lucide-react";
 
 const Hero = () => {
   return (
@@ -31,10 +31,6 @@ const Hero = () => {
               <div className="flex items-center space-x-2">
                 <Clock className="h-6 w-6 text-secondary" />
                 <span className="text-sm font-medium">Entrega Rápida</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Star className="h-6 w-6 text-secondary" />
-                <span className="text-sm font-medium">Nota 4.9/5</span>
               </div>
             </div>
           </div>
