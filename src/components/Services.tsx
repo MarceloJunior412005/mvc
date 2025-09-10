@@ -48,22 +48,46 @@ const Services = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, index) => (
-            <Card key={index} className="border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
-              <CardHeader className="text-center pb-4">
-                <div className="mx-auto mb-4 p-4 bg-primary/10 rounded-full w-fit">
-                  <service.icon className="h-8 w-8 text-primary" />
-                </div>
-                <CardTitle className="text-xl font-semibold">{service.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center space-y-4">
-                <CardDescription className="text-muted-foreground">
-                  {service.description}
-                </CardDescription>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="space-y-8">
+          {/* Primeira linha com 3 itens */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.slice(0, 3).map((service, index) => (
+              <Card key={index} className="border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
+                <CardHeader className="text-center pb-4">
+                  <div className="mx-auto mb-4 p-4 bg-primary/10 rounded-full w-fit">
+                    <service.icon className="h-8 w-8 text-primary" />
+                  </div>
+                  <CardTitle className="text-xl font-semibold">{service.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center space-y-4">
+                  <CardDescription className="text-muted-foreground">
+                    {service.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          
+          {/* Segunda linha com 2 itens centralizados */}
+          <div className="flex justify-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl">
+              {services.slice(3, 5).map((service, index) => (
+                <Card key={index + 3} className="border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
+                  <CardHeader className="text-center pb-4">
+                    <div className="mx-auto mb-4 p-4 bg-primary/10 rounded-full w-fit">
+                      <service.icon className="h-8 w-8 text-primary" />
+                    </div>
+                    <CardTitle className="text-xl font-semibold">{service.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center space-y-4">
+                    <CardDescription className="text-muted-foreground">
+                      {service.description}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
