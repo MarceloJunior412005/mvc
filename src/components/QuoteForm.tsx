@@ -209,21 +209,12 @@ const QuoteForm = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="font-semibold">Telefone</p>
-                  <p className="text-primary-foreground/90">(11) 4788-5500</p>
-                </div>
-                <div>
                   <p className="font-semibold">WhatsApp</p>
-                  <p className="text-primary-foreground/90">(11) 99999-9999</p>
+                  <p className="text-primary-foreground/90">(11) 98206-6490</p>
                 </div>
                 <div>
                   <p className="font-semibold">E-mail</p>
-                  <p className="text-primary-foreground/90">contato@mvctransportes.com.br</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Horário de Atendimento</p>
-                  <p className="text-primary-foreground/90">Seg-Sex: 8h às 18h</p>
-                  <p className="text-primary-foreground/90">Sáb: 8h às 12h</p>
+                  <p className="text-primary-foreground/90">mvctransportestaboao@gmail.com</p>
                 </div>
               </CardContent>
             </Card>
