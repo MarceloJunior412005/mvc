@@ -48,9 +48,11 @@ const Header = () => {
             <a href="#contato" className="text-foreground hover:text-primary transition-colors">Contato</a>
           </nav>
 
-          <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold">
-            Solicitar Orçamento
-          </Button>
+          <a href="#orcamento">
+            <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold">
+              Solicitar Orçamento
+            </Button>
+          </a>
         </div>
       </div>
     </header>
