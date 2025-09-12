@@ -60,7 +60,7 @@ const Footer = () => {
                 <span>(11) 98206-6490</span>
               </div>
               <div className="flex items-center space-x-3">
-                <Mail className="h-4 w-4 text-secondary" />
+                <Mail className="h-4 w-4 text-secondary flex-shrink-0" />
                 <span>mvctransportestaboao@gmail.com</span>
               </div>
               <div className="flex items-start space-x-3">
