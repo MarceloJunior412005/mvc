@@ -50,18 +50,18 @@ const Footer = () => {
               <div className="flex items-start space-x-3">
                 <MapPin className="h-4 w-4 mt-1 text-secondary flex-shrink-0" />
                 <div>
-                  <p>Rua das Empresas, 123</p>
+                  <p>Rua João Antônio da Fonseca, 995</p>
                   <p>Taboão da Serra - SP</p>
                   <p>CEP: 06760-000</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 text-secondary" />
-                <span>(11) 4788-5500</span>
+                <span>(11) 98206-6490</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-4 w-4 text-secondary" />
-                <span>contato@mvctransportes.com.br</span>
+                <span>mvctransportestaboao@gmail.com</span>
               </div>
               <div className="flex items-start space-x-3">
                 <Clock className="h-4 w-4 mt-1 text-secondary" />
