@@ -52,7 +52,7 @@ const Footer = () => {
                 <div>
                   <p>Rua João Antônio da Fonseca, 995</p>
                   <p>Taboão da Serra - SP</p>
-                  <p>CEP: 06760-000</p>
+                  <p>CEP: 06770-230</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
