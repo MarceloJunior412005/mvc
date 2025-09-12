@@ -26,6 +26,16 @@ const QuoteForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.cargoType) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Por favor, selecione o tipo de carga.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     toast({
       title: "Orçamento solicitado!",
       description: "Entraremos em contato em até 2 horas úteis.",
