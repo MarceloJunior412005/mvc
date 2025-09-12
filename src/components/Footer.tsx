@@ -4,7 +4,7 @@ const Footer = () => {
   return (
     <footer className="bg-primary text-primary-foreground">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-4">
+        <div className="grid md:grid-cols-2 lg:grid-cols-[1.25fr_1fr_1fr_1.4fr] gap-8">
           <div className="space-y-4">
             <img 
               src="/lovable-uploads/41ee31ee-ad60-4284-bbb5-5b0be31145fe.png" 
@@ -44,7 +44,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          <div className="space-y-4 lg:pl-4">
+          <div className="space-y-4">
             <h3 className="font-semibold text-lg">Contato</h3>
             <div className="space-y-3 text-sm">
               <div className="flex items-start space-x-3">
@@ -59,9 +59,9 @@ const Footer = () => {
                 <Phone className="h-4 w-4 text-secondary" />
                 <span>(11) 98206-6490</span>
               </div>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-3 min-w-0">
                 <Mail className="h-4 w-4 text-secondary flex-shrink-0" />
-                <span>mvctransportestaboao@gmail.com</span>
+                <span className="break-words">mvctransportestaboao@gmail.com</span>
               </div>
               <div className="flex items-start space-x-3">
                 <Clock className="h-4 w-4 mt-1 text-secondary" />
