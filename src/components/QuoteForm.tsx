@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Calculator, Phone } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Calculator, Phone, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const QuoteForm = () => {
@@ -19,10 +20,62 @@ const QuoteForm = () => {
     destination: "",
     cargoType: "",
     weight: "",
-    dimensions: "",
     urgency: "",
-    description: ""
+    description: "",
+    distance: ""
   });
+
+  const [quoteResults, setQuoteResults] = useState<{
+    truck: number;
+    toco: number;
+    utilitario: number;
+    warnings: string[];
+  } | null>(null);
+
+  const calculateFreight = () => {
+    const weight = parseFloat(formData.weight);
+    const distance = parseFloat(formData.distance);
+    
+    if (!weight || !distance) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha o peso e a distância.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Capacidades dos veículos
+    const capacities = {
+      truck: 12000,
+      toco: 6000,
+      utilitario: 1500
+    };
+
+    // Cálculo dos fretes
+    const truck = 250 + (4.00 * distance) + (0.05 * weight);
+    const toco = 200 + (3.20 * distance) + (0.04 * weight);
+    const utilitario = 120 + (2.00 * distance) + (0.03 * weight);
+
+    // Verificação de capacidade
+    const warnings: string[] = [];
+    if (weight > capacities.truck) {
+      warnings.push("Truck: Carga acima da capacidade do veículo escolhido.");
+    }
+    if (weight > capacities.toco) {
+      warnings.push("Toco: Carga acima da capacidade do veículo escolhido.");
+    }
+    if (weight > capacities.utilitario) {
+      warnings.push("Utilitário: Carga acima da capacidade do veículo escolhido.");
+    }
+
+    setQuoteResults({
+      truck,
+      toco,
+      utilitario,
+      warnings
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,10 +89,23 @@ const QuoteForm = () => {
       return;
     }
     
-    toast({
-      title: "Orçamento solicitado!",
-      description: "Entraremos em contato em até 2 horas úteis.",
-    });
+    calculateFreight();
+  };
+
+  const handleWhatsAppContact = () => {
+    const message = encodeURIComponent(
+      `Olá! Gostaria de contratar o serviço de transporte.
+      
+Dados do orçamento:
+- Nome: ${formData.name}
+- Origem: ${formData.origin}
+- Destino: ${formData.destination}
+- Tipo de carga: ${formData.cargoType}
+- Peso: ${formData.weight}kg
+- Distância: ${formData.distance}km`
+    );
+    
+    window.open(`https://wa.me/5511982066490?text=${message}`, '_blank');
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -138,57 +204,59 @@ const QuoteForm = () => {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label>Tipo de Carga *</Label>
-                      <Select value={formData.cargoType} onValueChange={(value) => handleInputChange("cargoType", value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="seca">Carga Seca</SelectItem>
-                          <SelectItem value="refrigerada">Refrigerada</SelectItem>
-                          <SelectItem value="perigosa">Perigosa</SelectItem>
-                          <SelectItem value="fragil">Frágil</SelectItem>
-                          <SelectItem value="especial">Especial</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="weight">Peso (kg) *</Label>
-                      <Input 
-                        id="weight"
-                        type="number"
-                        placeholder="0"
-                        value={formData.weight}
-                        onChange={(e) => handleInputChange("weight", e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Urgência</Label>
-                      <Select value={formData.urgency} onValueChange={(value) => handleInputChange("urgency", value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="normal">Normal</SelectItem>
-                          <SelectItem value="urgente">Urgente</SelectItem>
-                          <SelectItem value="expressa">Expressa</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+                   <div className="grid md:grid-cols-4 gap-4">
+                     <div className="space-y-2">
+                       <Label>Tipo de Carga *</Label>
+                       <Select value={formData.cargoType} onValueChange={(value) => handleInputChange("cargoType", value)}>
+                         <SelectTrigger>
+                           <SelectValue placeholder="Selecione" />
+                         </SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="seca">Carga Seca</SelectItem>
+                           <SelectItem value="refrigerada">Refrigerada</SelectItem>
+                           <SelectItem value="perigosa">Perigosa</SelectItem>
+                           <SelectItem value="fragil">Frágil</SelectItem>
+                           <SelectItem value="especial">Especial</SelectItem>
+                         </SelectContent>
+                       </Select>
+                     </div>
+                     <div className="space-y-2">
+                       <Label htmlFor="weight">Peso (kg) *</Label>
+                       <Input 
+                         id="weight"
+                         type="number"
+                         placeholder="0"
+                         value={formData.weight}
+                         onChange={(e) => handleInputChange("weight", e.target.value)}
+                         required
+                       />
+                     </div>
+                     <div className="space-y-2">
+                       <Label htmlFor="distance">Distância (km) *</Label>
+                       <Input 
+                         id="distance"
+                         type="number"
+                         placeholder="0"
+                         value={formData.distance}
+                         onChange={(e) => handleInputChange("distance", e.target.value)}
+                         required
+                       />
+                     </div>
+                     <div className="space-y-2">
+                       <Label>Urgência</Label>
+                       <Select value={formData.urgency} onValueChange={(value) => handleInputChange("urgency", value)}>
+                         <SelectTrigger>
+                           <SelectValue placeholder="Selecione" />
+                         </SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="normal">Normal</SelectItem>
+                           <SelectItem value="urgente">Urgente</SelectItem>
+                           <SelectItem value="expressa">Expressa</SelectItem>
+                         </SelectContent>
+                       </Select>
+                     </div>
+                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="dimensions">Dimensões (C x L x A)</Label>
-                    <Input 
-                      id="dimensions"
-                      placeholder="Ex: 2,0 x 1,5 x 1,0 metros"
-                      value={formData.dimensions}
-                      onChange={(e) => handleInputChange("dimensions", e.target.value)}
-                    />
-                  </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="description">Descrição da Carga</Label>
@@ -201,12 +269,72 @@ const QuoteForm = () => {
                     />
                   </div>
 
-                  <Button type="submit" className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold">
-                    Solicitar Orçamento Gratuito
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
+                   <Button type="submit" className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold">
+                     Calcular Orçamento Gratuito
+                   </Button>
+                 </form>
+
+                 {quoteResults && (
+                   <div className="mt-8 space-y-4">
+                     <h3 className="text-xl font-semibold">Orçamento Calculado</h3>
+                     
+                     {quoteResults.warnings.length > 0 && (
+                       <div className="bg-destructive/10 border border-destructive/20 text-destructive rounded-lg p-4">
+                         <h4 className="font-semibold mb-2">Atenção:</h4>
+                         <ul className="list-disc list-inside space-y-1">
+                           {quoteResults.warnings.map((warning, index) => (
+                             <li key={index} className="text-sm">{warning}</li>
+                           ))}
+                         </ul>
+                       </div>
+                     )}
+
+                     <div className="border rounded-lg overflow-hidden">
+                       <Table>
+                         <TableHeader>
+                           <TableRow>
+                             <TableHead>Tipo de Veículo</TableHead>
+                             <TableHead>Capacidade</TableHead>
+                             <TableHead className="text-right">Valor do Frete</TableHead>
+                           </TableRow>
+                         </TableHeader>
+                         <TableBody>
+                           <TableRow>
+                             <TableCell className="font-medium">Truck</TableCell>
+                             <TableCell>até 12.000kg</TableCell>
+                             <TableCell className="text-right font-semibold">
+                               R$ {quoteResults.truck.toFixed(2).replace('.', ',')}
+                             </TableCell>
+                           </TableRow>
+                           <TableRow>
+                             <TableCell className="font-medium">Toco</TableCell>
+                             <TableCell>até 6.000kg</TableCell>
+                             <TableCell className="text-right font-semibold">
+                               R$ {quoteResults.toco.toFixed(2).replace('.', ',')}
+                             </TableCell>
+                           </TableRow>
+                           <TableRow>
+                             <TableCell className="font-medium">Utilitário</TableCell>
+                             <TableCell>até 1.500kg</TableCell>
+                             <TableCell className="text-right font-semibold">
+                               R$ {quoteResults.utilitario.toFixed(2).replace('.', ',')}
+                             </TableCell>
+                           </TableRow>
+                         </TableBody>
+                       </Table>
+                     </div>
+
+                     <Button 
+                       onClick={handleWhatsAppContact}
+                       className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+                     >
+                       <MessageCircle className="h-4 w-4 mr-2" />
+                       Entrar em contato
+                     </Button>
+                   </div>
+                 )}
+               </CardContent>
+             </Card>
           </div>
 
           <div className="space-y-6">
