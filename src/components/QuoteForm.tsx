@@ -11,13 +11,47 @@ import { useToast } from "@/hooks/use-toast";
 
 const QuoteForm = () => {
   const { toast } = useToast();
+  
+  // Estados e cidades do Brasil
+  const brasilData = {
+    "AC": ["Rio Branco", "Cruzeiro do Sul", "Sena Madureira", "Tarauacá"],
+    "AL": ["Maceió", "Arapiraca", "Palmeira dos Índios", "Rio Largo"],
+    "AP": ["Macapá", "Santana", "Laranjal do Jari", "Oiapoque"],
+    "AM": ["Manaus", "Parintins", "Itacoatiara", "Manacapuru"],
+    "BA": ["Salvador", "Feira de Santana", "Vitória da Conquista", "Camaçari", "Juazeiro", "Ilhéus"],
+    "CE": ["Fortaleza", "Caucaia", "Juazeiro do Norte", "Maracanaú", "Sobral"],
+    "DF": ["Brasília", "Taguatinga", "Ceilândia", "Planaltina"],
+    "ES": ["Vitória", "Vila Velha", "Serra", "Cariacica", "Linhares"],
+    "GO": ["Goiânia", "Aparecida de Goiânia", "Anápolis", "Rio Verde", "Luziânia"],
+    "MA": ["São Luís", "Imperatriz", "São José de Ribamar", "Timon", "Caxias"],
+    "MT": ["Cuiabá", "Várzea Grande", "Rondonópolis", "Sinop", "Tangará da Serra"],
+    "MS": ["Campo Grande", "Dourados", "Três Lagoas", "Corumbá", "Ponta Porã"],
+    "MG": ["Belo Horizonte", "Uberlândia", "Contagem", "Juiz de Fora", "Betim", "Montes Claros"],
+    "PA": ["Belém", "Ananindeua", "Santarém", "Marabá", "Castanhal"],
+    "PB": ["João Pessoa", "Campina Grande", "Santa Rita", "Patos", "Bayeux"],
+    "PR": ["Curitiba", "Londrina", "Maringá", "Ponta Grossa", "Cascavel", "São José dos Pinhais"],
+    "PE": ["Recife", "Jaboatão dos Guararapes", "Olinda", "Caruaru", "Petrolina"],
+    "PI": ["Teresina", "Parnaíba", "Picos", "Piripiri", "Floriano"],
+    "RJ": ["Rio de Janeiro", "São Gonçalo", "Duque de Caxias", "Nova Iguaçu", "Niterói", "Campos dos Goytacazes"],
+    "RN": ["Natal", "Mossoró", "Parnamirim", "São Gonçalo do Amarante", "Macaíba"],
+    "RS": ["Porto Alegre", "Caxias do Sul", "Pelotas", "Canoas", "Santa Maria", "Gravataí"],
+    "RO": ["Porto Velho", "Ji-Paraná", "Ariquemes", "Vilhena", "Cacoal"],
+    "RR": ["Boa Vista", "Rorainópolis", "Caracaraí", "Alto Alegre"],
+    "SC": ["Florianópolis", "Joinville", "Blumenau", "São José", "Criciúma", "Chapecó"],
+    "SP": ["São Paulo", "Guarulhos", "Campinas", "São Bernardo do Campo", "Santo André", "Osasco", "Ribeirão Preto", "Sorocaba"],
+    "SE": ["Aracaju", "Nossa Senhora do Socorro", "Lagarto", "Itabaiana", "Estância"],
+    "TO": ["Palmas", "Araguaína", "Gurupi", "Porto Nacional", "Paraíso do Tocantins"]
+  };
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     company: "",
-    origin: "",
-    destination: "",
+    originState: "",
+    originCity: "",
+    destinationState: "",
+    destinationCity: "",
     cargoType: "",
     weight: "",
     urgency: "",
@@ -98,8 +132,8 @@ const QuoteForm = () => {
       
 Dados do orçamento:
 - Nome: ${formData.name}
-- Origem: ${formData.origin}
-- Destino: ${formData.destination}
+- Origem: ${formData.originCity}/${formData.originState}
+- Destino: ${formData.destinationCity}/${formData.destinationState}
 - Tipo de carga: ${formData.cargoType}
 - Peso: ${formData.weight}kg
 - Distância: ${formData.distance}km`
@@ -181,37 +215,99 @@ Dados do orçamento:
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="origin">Origem *</Label>
-                      <Input 
-                        id="origin"
-                        placeholder="Cidade/Estado de origem"
-                        value={formData.origin}
-                        onChange={(e) => handleInputChange("origin", e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="destination">Destino *</Label>
-                      <Input 
-                        id="destination"
-                        placeholder="Cidade/Estado de destino"
-                        value={formData.destination}
-                        onChange={(e) => handleInputChange("destination", e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
+                   <div className="grid md:grid-cols-2 gap-4">
+                     <div className="space-y-4">
+                       <h3 className="font-semibold text-foreground">Origem *</h3>
+                       <div className="grid grid-cols-2 gap-2">
+                         <div className="space-y-2">
+                           <Label>Estado</Label>
+                           <Select 
+                             value={formData.originState} 
+                             onValueChange={(value) => {
+                               handleInputChange("originState", value);
+                               handleInputChange("originCity", ""); // Reset city when state changes
+                             }}
+                           >
+                             <SelectTrigger className="bg-background">
+                               <SelectValue placeholder="UF" />
+                             </SelectTrigger>
+                             <SelectContent className="bg-background border border-border z-50">
+                               {Object.keys(brasilData).map((uf) => (
+                                 <SelectItem key={uf} value={uf}>{uf}</SelectItem>
+                               ))}
+                             </SelectContent>
+                           </Select>
+                         </div>
+                         <div className="space-y-2">
+                           <Label>Cidade</Label>
+                           <Select 
+                             value={formData.originCity} 
+                             onValueChange={(value) => handleInputChange("originCity", value)}
+                             disabled={!formData.originState}
+                           >
+                             <SelectTrigger className="bg-background">
+                               <SelectValue placeholder="Cidade" />
+                             </SelectTrigger>
+                             <SelectContent className="bg-background border border-border z-50">
+                               {formData.originState && brasilData[formData.originState as keyof typeof brasilData]?.map((city) => (
+                                 <SelectItem key={city} value={city}>{city}</SelectItem>
+                               ))}
+                             </SelectContent>
+                           </Select>
+                         </div>
+                       </div>
+                     </div>
+                     <div className="space-y-4">
+                       <h3 className="font-semibold text-foreground">Destino *</h3>
+                       <div className="grid grid-cols-2 gap-2">
+                         <div className="space-y-2">
+                           <Label>Estado</Label>
+                           <Select 
+                             value={formData.destinationState} 
+                             onValueChange={(value) => {
+                               handleInputChange("destinationState", value);
+                               handleInputChange("destinationCity", ""); // Reset city when state changes
+                             }}
+                           >
+                             <SelectTrigger className="bg-background">
+                               <SelectValue placeholder="UF" />
+                             </SelectTrigger>
+                             <SelectContent className="bg-background border border-border z-50">
+                               {Object.keys(brasilData).map((uf) => (
+                                 <SelectItem key={uf} value={uf}>{uf}</SelectItem>
+                               ))}
+                             </SelectContent>
+                           </Select>
+                         </div>
+                         <div className="space-y-2">
+                           <Label>Cidade</Label>
+                           <Select 
+                             value={formData.destinationCity} 
+                             onValueChange={(value) => handleInputChange("destinationCity", value)}
+                             disabled={!formData.destinationState}
+                           >
+                             <SelectTrigger className="bg-background">
+                               <SelectValue placeholder="Cidade" />
+                             </SelectTrigger>
+                             <SelectContent className="bg-background border border-border z-50">
+                               {formData.destinationState && brasilData[formData.destinationState as keyof typeof brasilData]?.map((city) => (
+                                 <SelectItem key={city} value={city}>{city}</SelectItem>
+                               ))}
+                             </SelectContent>
+                           </Select>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
 
                    <div className="grid md:grid-cols-4 gap-4">
                      <div className="space-y-2">
                        <Label>Tipo de Carga *</Label>
                        <Select value={formData.cargoType} onValueChange={(value) => handleInputChange("cargoType", value)}>
-                         <SelectTrigger>
+                         <SelectTrigger className="bg-background">
                            <SelectValue placeholder="Selecione" />
                          </SelectTrigger>
-                         <SelectContent>
+                         <SelectContent className="bg-background border border-border z-50">
                            <SelectItem value="seca">Carga Seca</SelectItem>
                            <SelectItem value="refrigerada">Refrigerada</SelectItem>
                            <SelectItem value="perigosa">Perigosa</SelectItem>
@@ -245,10 +341,10 @@ Dados do orçamento:
                      <div className="space-y-2">
                        <Label>Urgência</Label>
                        <Select value={formData.urgency} onValueChange={(value) => handleInputChange("urgency", value)}>
-                         <SelectTrigger>
+                         <SelectTrigger className="bg-background">
                            <SelectValue placeholder="Selecione" />
                          </SelectTrigger>
-                         <SelectContent>
+                         <SelectContent className="bg-background border border-border z-50">
                            <SelectItem value="normal">Normal</SelectItem>
                            <SelectItem value="urgente">Urgente</SelectItem>
                            <SelectItem value="expressa">Expressa</SelectItem>
