@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Calculator, Phone, MessageCircle } from "lucide-react";
+import { Calculator, Phone, MessageCircle, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const QuoteForm = () => {
@@ -56,24 +56,78 @@ const QuoteForm = () => {
     weight: "",
     urgency: "",
     description: "",
-    distance: ""
+    googleMapsApiKey: ""
   });
 
+  const [calculatedDistance, setCalculatedDistance] = useState<number | null>(null);
+  const [isCalculatingDistance, setIsCalculatingDistance] = useState(false);
+  
   const [quoteResults, setQuoteResults] = useState<{
     truck: number;
     toco: number;
     utilitario: number;
     warnings: string[];
+    distance: number;
   } | null>(null);
+
+  // Function to calculate distance using Google Maps API
+  const calculateDistance = async () => {
+    if (!formData.originCity || !formData.originState || !formData.destinationCity || !formData.destinationState || !formData.googleMapsApiKey) {
+      return;
+    }
+
+    setIsCalculatingDistance(true);
+    
+    try {
+      const origin = `${formData.originCity}, ${formData.originState}, Brazil`;
+      const destination = `${formData.destinationCity}, ${formData.destinationState}, Brazil`;
+      
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&units=metric&key=${formData.googleMapsApiKey}&mode=driving`,
+        {
+          method: 'GET',
+        }
+      );
+
+      const data = await response.json();
+      
+      if (data.status === 'OK' && data.rows[0]?.elements[0]?.status === 'OK') {
+        const distanceInMeters = data.rows[0].elements[0].distance.value;
+        const distanceInKm = Math.round(distanceInMeters / 1000);
+        setCalculatedDistance(distanceInKm);
+      } else {
+        toast({
+          title: "Erro no cálculo de distância",
+          description: "Não foi possível calcular a distância entre as cidades selecionadas.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erro na API",
+        description: "Verifique se a chave da API do Google Maps está correta.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCalculatingDistance(false);
+    }
+  };
+
+  // Auto-calculate distance when origin and destination are selected
+  useEffect(() => {
+    if (formData.originCity && formData.originState && formData.destinationCity && formData.destinationState && formData.googleMapsApiKey) {
+      calculateDistance();
+    }
+  }, [formData.originCity, formData.originState, formData.destinationCity, formData.destinationState, formData.googleMapsApiKey]);
 
   const calculateFreight = () => {
     const weight = parseFloat(formData.weight);
-    const distance = parseFloat(formData.distance);
+    const distance = calculatedDistance;
     
     if (!weight || !distance) {
       toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha o peso e a distância.",
+        title: "Dados insuficientes",
+        description: "É necessário ter peso da carga e distância calculada.",
         variant: "destructive"
       });
       return;
@@ -107,7 +161,8 @@ const QuoteForm = () => {
       truck,
       toco,
       utilitario,
-      warnings
+      warnings,
+      distance
     });
   };
 
@@ -136,7 +191,7 @@ Dados do orçamento:
 - Destino: ${formData.destinationCity}/${formData.destinationState}
 - Tipo de carga: ${formData.cargoType}
 - Peso: ${formData.weight}kg
-- Distância: ${formData.distance}km`
+- Distância: ${calculatedDistance}km`
     );
     
     window.open(`https://wa.me/5511982066490?text=${message}`, '_blank');
@@ -172,8 +227,26 @@ Dados do orçamento:
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-4">
+                 <form onSubmit={handleSubmit} className="space-y-6">
+                   {/* API Key Field - Temporary for testing */}
+                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 space-y-2">
+                     <Label htmlFor="googleMapsApiKey" className="text-yellow-800 font-semibold">
+                       Chave da API do Google Maps *
+                     </Label>
+                     <Input 
+                       id="googleMapsApiKey"
+                       type="password"
+                       placeholder="Cole aqui sua chave da API do Google Maps"
+                       value={formData.googleMapsApiKey}
+                       onChange={(e) => handleInputChange("googleMapsApiKey", e.target.value)}
+                       required
+                     />
+                     <p className="text-xs text-yellow-700">
+                       Para obter sua chave da API, acesse: <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="underline">Google Cloud Console</a>
+                     </p>
+                   </div>
+
+                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="name">Nome Completo *</Label>
                       <Input 
@@ -300,7 +373,28 @@ Dados do orçamento:
                      </div>
                    </div>
 
-                   <div className="grid md:grid-cols-4 gap-4">
+                   {/* Distance Display */}
+                   {calculatedDistance && (
+                     <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                       <div className="flex items-center space-x-2">
+                         <MapPin className="h-5 w-5 text-green-600" />
+                         <span className="font-semibold text-green-800">
+                           Distância calculada: {calculatedDistance} km
+                         </span>
+                       </div>
+                     </div>
+                   )}
+
+                   {isCalculatingDistance && (
+                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                       <div className="flex items-center space-x-2">
+                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                         <span className="text-blue-800">Calculando distância...</span>
+                       </div>
+                     </div>
+                   )}
+
+                   <div className="grid md:grid-cols-3 gap-4">
                      <div className="space-y-2">
                        <Label>Tipo de Carga *</Label>
                        <Select value={formData.cargoType} onValueChange={(value) => handleInputChange("cargoType", value)}>
@@ -324,17 +418,6 @@ Dados do orçamento:
                          placeholder="0"
                          value={formData.weight}
                          onChange={(e) => handleInputChange("weight", e.target.value)}
-                         required
-                       />
-                     </div>
-                     <div className="space-y-2">
-                       <Label htmlFor="distance">Distância (km) *</Label>
-                       <Input 
-                         id="distance"
-                         type="number"
-                         placeholder="0"
-                         value={formData.distance}
-                         onChange={(e) => handleInputChange("distance", e.target.value)}
                          required
                        />
                      </div>
@@ -365,8 +448,12 @@ Dados do orçamento:
                     />
                   </div>
 
-                   <Button type="submit" className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold">
-                     Calcular Orçamento Gratuito
+                   <Button 
+                     type="submit" 
+                     className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold"
+                     disabled={!calculatedDistance || isCalculatingDistance}
+                   >
+                     {isCalculatingDistance ? "Calculando distância..." : "Calcular Frete"}
                    </Button>
                  </form>
 
@@ -391,6 +478,7 @@ Dados do orçamento:
                            <TableRow>
                              <TableHead>Tipo de Veículo</TableHead>
                              <TableHead>Capacidade</TableHead>
+                             <TableHead>Distância</TableHead>
                              <TableHead className="text-right">Valor do Frete</TableHead>
                            </TableRow>
                          </TableHeader>
@@ -398,6 +486,7 @@ Dados do orçamento:
                            <TableRow>
                              <TableCell className="font-medium">Truck</TableCell>
                              <TableCell>até 12.000kg</TableCell>
+                             <TableCell>{quoteResults.distance} km</TableCell>
                              <TableCell className="text-right font-semibold">
                                R$ {quoteResults.truck.toFixed(2).replace('.', ',')}
                              </TableCell>
@@ -405,6 +494,7 @@ Dados do orçamento:
                            <TableRow>
                              <TableCell className="font-medium">Toco</TableCell>
                              <TableCell>até 6.000kg</TableCell>
+                             <TableCell>{quoteResults.distance} km</TableCell>
                              <TableCell className="text-right font-semibold">
                                R$ {quoteResults.toco.toFixed(2).replace('.', ',')}
                              </TableCell>
@@ -412,6 +502,7 @@ Dados do orçamento:
                            <TableRow>
                              <TableCell className="font-medium">Utilitário</TableCell>
                              <TableCell>até 1.500kg</TableCell>
+                             <TableCell>{quoteResults.distance} km</TableCell>
                              <TableCell className="text-right font-semibold">
                                R$ {quoteResults.utilitario.toFixed(2).replace('.', ',')}
                              </TableCell>
