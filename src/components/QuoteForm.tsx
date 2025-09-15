@@ -55,8 +55,7 @@ const QuoteForm = () => {
     cargoType: "",
     weight: "",
     urgency: "",
-    description: "",
-    googleMapsApiKey: ""
+    description: ""
   });
 
   const [calculatedDistance, setCalculatedDistance] = useState<number | null>(null);
@@ -70,9 +69,9 @@ const QuoteForm = () => {
     distance: number;
   } | null>(null);
 
-  // Function to calculate distance using Google Maps API
+  // Function to calculate distance using Supabase edge function
   const calculateDistance = async () => {
-    if (!formData.originCity || !formData.originState || !formData.destinationCity || !formData.destinationState || !formData.googleMapsApiKey) {
+    if (!formData.originCity || !formData.originState || !formData.destinationCity || !formData.destinationState) {
       return;
     }
 
@@ -82,30 +81,32 @@ const QuoteForm = () => {
       const origin = `${formData.originCity}, ${formData.originState}, Brazil`;
       const destination = `${formData.destinationCity}, ${formData.destinationState}, Brazil`;
       
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&units=metric&key=${formData.googleMapsApiKey}&mode=driving`,
-        {
-          method: 'GET',
-        }
-      );
+      const response = await fetch('/api/calculate-distance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          origin,
+          destination
+        }),
+      });
 
       const data = await response.json();
       
-      if (data.status === 'OK' && data.rows[0]?.elements[0]?.status === 'OK') {
-        const distanceInMeters = data.rows[0].elements[0].distance.value;
-        const distanceInKm = Math.round(distanceInMeters / 1000);
-        setCalculatedDistance(distanceInKm);
+      if (data.status === 'success') {
+        setCalculatedDistance(data.distance);
       } else {
         toast({
           title: "Erro no cálculo de distância",
-          description: "Não foi possível calcular a distância entre as cidades selecionadas.",
+          description: data.error || "Não foi possível calcular a distância entre as cidades selecionadas.",
           variant: "destructive"
         });
       }
     } catch (error) {
       toast({
-        title: "Erro na API",
-        description: "Verifique se a chave da API do Google Maps está correta.",
+        title: "Erro na conexão",
+        description: "Erro ao conectar com o serviço de cálculo de distância.",
         variant: "destructive"
       });
     } finally {
@@ -115,10 +116,10 @@ const QuoteForm = () => {
 
   // Auto-calculate distance when origin and destination are selected
   useEffect(() => {
-    if (formData.originCity && formData.originState && formData.destinationCity && formData.destinationState && formData.googleMapsApiKey) {
+    if (formData.originCity && formData.originState && formData.destinationCity && formData.destinationState) {
       calculateDistance();
     }
-  }, [formData.originCity, formData.originState, formData.destinationCity, formData.destinationState, formData.googleMapsApiKey]);
+  }, [formData.originCity, formData.originState, formData.destinationCity, formData.destinationState]);
 
   const calculateFreight = () => {
     const weight = parseFloat(formData.weight);
@@ -228,23 +229,6 @@ Dados do orçamento:
               </CardHeader>
               <CardContent>
                  <form onSubmit={handleSubmit} className="space-y-6">
-                   {/* API Key Field - Temporary for testing */}
-                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 space-y-2">
-                     <Label htmlFor="googleMapsApiKey" className="text-yellow-800 font-semibold">
-                       Chave da API do Google Maps *
-                     </Label>
-                     <Input 
-                       id="googleMapsApiKey"
-                       type="password"
-                       placeholder="Cole aqui sua chave da API do Google Maps"
-                       value={formData.googleMapsApiKey}
-                       onChange={(e) => handleInputChange("googleMapsApiKey", e.target.value)}
-                       required
-                     />
-                     <p className="text-xs text-yellow-700">
-                       Para obter sua chave da API, acesse: <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="underline">Google Cloud Console</a>
-                     </p>
-                   </div>
 
                    <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
