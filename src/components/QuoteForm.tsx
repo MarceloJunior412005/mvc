@@ -81,7 +81,7 @@ const QuoteForm = () => {
       const origin = `${formData.originCity}, ${formData.originState}, Brazil`;
       const destination = `${formData.destinationCity}, ${formData.destinationState}, Brazil`;
       
-      const response = await fetch('/api/calculate-distance', {
+      const response = await fetch('https://cvjxfedmojojgqgzrqhk.supabase.co/functions/v1/calculate-distance', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
