@@ -532,7 +532,7 @@ Dados do orçamento:
               <CardContent className="p-6 text-center">
                 <h3 className="font-bold text-lg mb-2">Resposta Rápida</h3>
                 <p className="text-sm">
-                  Retornamos seu orçamento em até 2 horas úteis com as melhores 
+                  Retornamos seu orçamento em até 30 minutos úteis com as melhores 
                   condições do mercado.
                 </p>
               </CardContent>
