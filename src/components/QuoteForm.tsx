@@ -9,6 +9,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Calculator, Phone, MessageCircle, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+const SUPABASE_URL = 'https://cvjxfedmojojgqgzrqhk.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2anhmZWRtb2pvamRxZ3pycWhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY0NDQ1NzEsImV4cCI6MjA0MjAyMDU3MX0.0YnpFBP6C2QzCBKV5F1uVbOJFXKYKZEY2IuBLEtUj4c'
+
 const QuoteForm = () => {
   const { toast } = useToast();
   
@@ -81,10 +84,12 @@ const QuoteForm = () => {
       const origin = `${formData.originCity}, ${formData.originState}, Brazil`;
       const destination = `${formData.destinationCity}, ${formData.destinationState}, Brazil`;
       
-      const response = await fetch('https://cvjxfedmojojgqgzrqhk.supabase.co/functions/v1/calculate-distance', {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/calculate-distance`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'apikey': SUPABASE_ANON_KEY,
         },
         body: JSON.stringify({
           origin,
