@@ -9,6 +9,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Calculator, Phone, MessageCircle, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+const SUPABASE_URL = 'https://cvjxfedmojojgqgzrqhk.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2anhmZWRtb2pvamRxZ3pycWhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY0NDQ1NzEsImV4cCI6MjA0MjAyMDU3MX0.0YnpFBP6C2QzCBKV5F1uVbOJFXKYKZEY2IuBLEtUj4c'
+
 const QuoteForm = () => {
   const { toast } = useToast();
   
@@ -69,7 +72,7 @@ const QuoteForm = () => {
     distance: number;
   } | null>(null);
 
-  // Function to calculate distance using Supabase edge function
+  // Function to calculate distance using coordinates estimation
   const calculateDistance = async () => {
     if (!formData.originCity || !formData.originState || !formData.destinationCity || !formData.destinationState) {
       return;
@@ -78,37 +81,106 @@ const QuoteForm = () => {
     setIsCalculatingDistance(true);
     
     try {
-      const origin = `${formData.originCity}, ${formData.originState}, Brazil`;
-      const destination = `${formData.destinationCity}, ${formData.destinationState}, Brazil`;
-      
-      const response = await fetch('/api/calculate-distance', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          origin,
-          destination
-        }),
-      });
+      // Coordenadas aproximadas das capitais e principais cidades brasileiras
+      const cityCoords: { [key: string]: { lat: number, lng: number } } = {
+        // Região Norte
+        "Rio Branco,AC": { lat: -9.97472, lng: -67.81 },
+        "Maceió,AL": { lat: -9.62478, lng: -35.7200 },
+        "Macapá,AP": { lat: 0.034934, lng: -51.0694 },
+        "Manaus,AM": { lat: -3.11904, lng: -60.0212 },
+        
+        // Região Nordeste
+        "Salvador,BA": { lat: -12.9704, lng: -38.5124 },
+        "Fortaleza,CE": { lat: -3.71839, lng: -38.5434 },
+        "Vitória,ES": { lat: -20.3155, lng: -40.3128 },
+        "Goiânia,GO": { lat: -16.6799, lng: -49.2550 },
+        "São Luís,MA": { lat: -2.53874, lng: -44.2825 },
+        "Cuiabá,MT": { lat: -15.6014, lng: -56.0979 },
+        "Campo Grande,MS": { lat: -20.4486, lng: -54.6295 },
+        "Belo Horizonte,MG": { lat: -19.9167, lng: -43.9345 },
+        "Belém,PA": { lat: -1.45502, lng: -48.5024 },
+        "João Pessoa,PB": { lat: -7.11532, lng: -34.8641 },
+        "Curitiba,PR": { lat: -25.4244, lng: -49.2654 },
+        "Recife,PE": { lat: -8.04666, lng: -34.8771 },
+        "Teresina,PI": { lat: -5.08921, lng: -42.8016 },
+        "Rio de Janeiro,RJ": { lat: -22.9035, lng: -43.2096 },
+        "Natal,RN": { lat: -5.79448, lng: -35.211 },
+        "Porto Alegre,RS": { lat: -30.0277, lng: -51.2287 },
+        "Porto Velho,RO": { lat: -8.76077, lng: -63.8999 },
+        "Boa Vista,RR": { lat: 2.82384, lng: -60.6753 },
+        "Florianópolis,SC": { lat: -27.5954, lng: -48.5480 },
+        "São Paulo,SP": { lat: -23.5505, lng: -46.6333 },
+        "Aracaju,SE": { lat: -10.9472, lng: -37.0731 },
+        "Palmas,TO": { lat: -10.1753, lng: -48.2982 },
+        "Brasília,DF": { lat: -15.7939, lng: -47.8828 },
+        
+        // Principais cidades adicionais
+        "Guarulhos,SP": { lat: -23.4543, lng: -46.5339 },
+        "Campinas,SP": { lat: -22.9099, lng: -47.0626 },
+        "Joinville,SC": { lat: -26.3044, lng: -48.8487 },
+        "Londrina,PR": { lat: -23.3045, lng: -51.1696 },
+        "Maringá,PR": { lat: -23.4205, lng: -51.9331 },
+        "Blumenau,SC": { lat: -26.9194, lng: -49.0661 },
+        "Jaboatão dos Guararapes,PE": { lat: -8.1127, lng: -35.0148 },
+        "Feira de Santana,BA": { lat: -12.2664, lng: -38.9663 },
+        "Uberlândia,MG": { lat: -18.9113, lng: -48.2622 },
+        "Contagem,MG": { lat: -19.9317, lng: -44.0536 }
+      };
 
-      const data = await response.json();
+      const originKey = `${formData.originCity},${formData.originState}`;
+      const destinationKey = `${formData.destinationCity},${formData.destinationState}`;
       
-      if (data.status === 'success') {
-        setCalculatedDistance(data.distance);
-      } else {
-        toast({
-          title: "Erro no cálculo de distância",
-          description: data.error || "Não foi possível calcular a distância entre as cidades selecionadas.",
-          variant: "destructive"
-        });
+      const originCoords = cityCoords[originKey];
+      const destinationCoords = cityCoords[destinationKey];
+      
+      if (!originCoords || !destinationCoords) {
+        // Fallback: estimativa baseada em distância entre estados
+        const stateDistances: { [key: string]: number } = {
+          "SP-RJ": 350, "SP-MG": 400, "SP-PR": 300, "SP-SC": 450, "SP-RS": 700,
+          "RJ-MG": 300, "RJ-ES": 400, "RJ-SP": 350, "RJ-BA": 900,
+          "MG-SP": 400, "MG-RJ": 300, "MG-GO": 350, "MG-BA": 600,
+          "PR-SP": 300, "PR-SC": 200, "PR-RS": 400, "PR-MG": 600,
+          "SC-PR": 200, "SC-RS": 300, "SC-SP": 450,
+          "RS-SC": 300, "RS-PR": 400, "RS-SP": 700,
+          "GO-MG": 350, "GO-MT": 400, "GO-DF": 200,
+          "BA-MG": 600, "BA-PE": 700, "BA-SE": 300,
+          "PE-BA": 700, "PE-AL": 200, "PE-PB": 100,
+          "CE-PE": 600, "CE-RN": 400, "CE-PB": 500
+        };
+        
+        const stateKey1 = `${formData.originState}-${formData.destinationState}`;
+        const stateKey2 = `${formData.destinationState}-${formData.originState}`;
+        const estimatedDistance = stateDistances[stateKey1] || stateDistances[stateKey2] || 800;
+        
+        setCalculatedDistance(estimatedDistance);
+        return;
       }
+      
+      // Calcular distância usando fórmula Haversine
+      const toRadians = (degrees: number) => degrees * (Math.PI / 180);
+      
+      const lat1 = toRadians(originCoords.lat);
+      const lat2 = toRadians(destinationCoords.lat);
+      const deltaLat = toRadians(destinationCoords.lat - originCoords.lat);
+      const deltaLng = toRadians(destinationCoords.lng - originCoords.lng);
+      
+      const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+        Math.cos(lat1) * Math.cos(lat2) *
+        Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      
+      const distance = Math.round(6371 * c); // Raio da Terra em km
+      
+      setCalculatedDistance(distance);
+      
     } catch (error) {
       toast({
-        title: "Erro na conexão",
-        description: "Erro ao conectar com o serviço de cálculo de distância.",
+        title: "Erro no cálculo",
+        description: "Não foi possível calcular a distância. Usando estimativa padrão.",
         variant: "destructive"
       });
+      // Fallback distance
+      setCalculatedDistance(500);
     } finally {
       setIsCalculatingDistance(false);
     }
