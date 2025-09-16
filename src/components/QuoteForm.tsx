@@ -61,146 +61,20 @@ const QuoteForm = () => {
     description: ""
   });
 
-  const [calculatedDistance, setCalculatedDistance] = useState<number | null>(null);
-  const [isCalculatingDistance, setIsCalculatingDistance] = useState(false);
-  
   const [quoteResults, setQuoteResults] = useState<{
     truck: number;
     toco: number;
     utilitario: number;
     warnings: string[];
-    distance: number;
   } | null>(null);
-
-  // Function to calculate distance using coordinates estimation
-  const calculateDistance = async () => {
-    if (!formData.originCity || !formData.originState || !formData.destinationCity || !formData.destinationState) {
-      return;
-    }
-
-    setIsCalculatingDistance(true);
-    
-    try {
-      // Coordenadas aproximadas das capitais e principais cidades brasileiras
-      const cityCoords: { [key: string]: { lat: number, lng: number } } = {
-        // Região Norte
-        "Rio Branco,AC": { lat: -9.97472, lng: -67.81 },
-        "Maceió,AL": { lat: -9.62478, lng: -35.7200 },
-        "Macapá,AP": { lat: 0.034934, lng: -51.0694 },
-        "Manaus,AM": { lat: -3.11904, lng: -60.0212 },
-        
-        // Região Nordeste
-        "Salvador,BA": { lat: -12.9704, lng: -38.5124 },
-        "Fortaleza,CE": { lat: -3.71839, lng: -38.5434 },
-        "Vitória,ES": { lat: -20.3155, lng: -40.3128 },
-        "Goiânia,GO": { lat: -16.6799, lng: -49.2550 },
-        "São Luís,MA": { lat: -2.53874, lng: -44.2825 },
-        "Cuiabá,MT": { lat: -15.6014, lng: -56.0979 },
-        "Campo Grande,MS": { lat: -20.4486, lng: -54.6295 },
-        "Belo Horizonte,MG": { lat: -19.9167, lng: -43.9345 },
-        "Belém,PA": { lat: -1.45502, lng: -48.5024 },
-        "João Pessoa,PB": { lat: -7.11532, lng: -34.8641 },
-        "Curitiba,PR": { lat: -25.4244, lng: -49.2654 },
-        "Recife,PE": { lat: -8.04666, lng: -34.8771 },
-        "Teresina,PI": { lat: -5.08921, lng: -42.8016 },
-        "Rio de Janeiro,RJ": { lat: -22.9035, lng: -43.2096 },
-        "Natal,RN": { lat: -5.79448, lng: -35.211 },
-        "Porto Alegre,RS": { lat: -30.0277, lng: -51.2287 },
-        "Porto Velho,RO": { lat: -8.76077, lng: -63.8999 },
-        "Boa Vista,RR": { lat: 2.82384, lng: -60.6753 },
-        "Florianópolis,SC": { lat: -27.5954, lng: -48.5480 },
-        "São Paulo,SP": { lat: -23.5505, lng: -46.6333 },
-        "Aracaju,SE": { lat: -10.9472, lng: -37.0731 },
-        "Palmas,TO": { lat: -10.1753, lng: -48.2982 },
-        "Brasília,DF": { lat: -15.7939, lng: -47.8828 },
-        
-        // Principais cidades adicionais
-        "Guarulhos,SP": { lat: -23.4543, lng: -46.5339 },
-        "Campinas,SP": { lat: -22.9099, lng: -47.0626 },
-        "Joinville,SC": { lat: -26.3044, lng: -48.8487 },
-        "Londrina,PR": { lat: -23.3045, lng: -51.1696 },
-        "Maringá,PR": { lat: -23.4205, lng: -51.9331 },
-        "Blumenau,SC": { lat: -26.9194, lng: -49.0661 },
-        "Jaboatão dos Guararapes,PE": { lat: -8.1127, lng: -35.0148 },
-        "Feira de Santana,BA": { lat: -12.2664, lng: -38.9663 },
-        "Uberlândia,MG": { lat: -18.9113, lng: -48.2622 },
-        "Contagem,MG": { lat: -19.9317, lng: -44.0536 }
-      };
-
-      const originKey = `${formData.originCity},${formData.originState}`;
-      const destinationKey = `${formData.destinationCity},${formData.destinationState}`;
-      
-      const originCoords = cityCoords[originKey];
-      const destinationCoords = cityCoords[destinationKey];
-      
-      if (!originCoords || !destinationCoords) {
-        // Fallback: estimativa baseada em distância entre estados
-        const stateDistances: { [key: string]: number } = {
-          "SP-RJ": 350, "SP-MG": 400, "SP-PR": 300, "SP-SC": 450, "SP-RS": 700,
-          "RJ-MG": 300, "RJ-ES": 400, "RJ-SP": 350, "RJ-BA": 900,
-          "MG-SP": 400, "MG-RJ": 300, "MG-GO": 350, "MG-BA": 600,
-          "PR-SP": 300, "PR-SC": 200, "PR-RS": 400, "PR-MG": 600,
-          "SC-PR": 200, "SC-RS": 300, "SC-SP": 450,
-          "RS-SC": 300, "RS-PR": 400, "RS-SP": 700,
-          "GO-MG": 350, "GO-MT": 400, "GO-DF": 200,
-          "BA-MG": 600, "BA-PE": 700, "BA-SE": 300,
-          "PE-BA": 700, "PE-AL": 200, "PE-PB": 100,
-          "CE-PE": 600, "CE-RN": 400, "CE-PB": 500
-        };
-        
-        const stateKey1 = `${formData.originState}-${formData.destinationState}`;
-        const stateKey2 = `${formData.destinationState}-${formData.originState}`;
-        const estimatedDistance = stateDistances[stateKey1] || stateDistances[stateKey2] || 800;
-        
-        setCalculatedDistance(estimatedDistance);
-        return;
-      }
-      
-      // Calcular distância usando fórmula Haversine
-      const toRadians = (degrees: number) => degrees * (Math.PI / 180);
-      
-      const lat1 = toRadians(originCoords.lat);
-      const lat2 = toRadians(destinationCoords.lat);
-      const deltaLat = toRadians(destinationCoords.lat - originCoords.lat);
-      const deltaLng = toRadians(destinationCoords.lng - originCoords.lng);
-      
-      const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-        Math.cos(lat1) * Math.cos(lat2) *
-        Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      
-      const distance = Math.round(6371 * c); // Raio da Terra em km
-      
-      setCalculatedDistance(distance);
-      
-    } catch (error) {
-      toast({
-        title: "Erro no cálculo",
-        description: "Não foi possível calcular a distância. Usando estimativa padrão.",
-        variant: "destructive"
-      });
-      // Fallback distance
-      setCalculatedDistance(500);
-    } finally {
-      setIsCalculatingDistance(false);
-    }
-  };
-
-  // Auto-calculate distance when origin and destination are selected
-  useEffect(() => {
-    if (formData.originCity && formData.originState && formData.destinationCity && formData.destinationState) {
-      calculateDistance();
-    }
-  }, [formData.originCity, formData.originState, formData.destinationCity, formData.destinationState]);
 
   const calculateFreight = () => {
     const weight = parseFloat(formData.weight);
-    const distance = calculatedDistance;
     
-    if (!weight || !distance) {
+    if (!weight) {
       toast({
         title: "Dados insuficientes",
-        description: "É necessário ter peso da carga e distância calculada.",
+        description: "É necessário informar o peso da carga.",
         variant: "destructive"
       });
       return;
@@ -213,10 +87,10 @@ const QuoteForm = () => {
       utilitario: 1500
     };
 
-    // Cálculo dos fretes
-    const truck = 250 + (4.00 * distance) + (0.05 * weight);
-    const toco = 200 + (3.20 * distance) + (0.04 * weight);
-    const utilitario = 120 + (2.00 * distance) + (0.03 * weight);
+    // Valores base fixos para orçamento (sem cálculo automático)
+    const truck = 1200;
+    const toco = 800;
+    const utilitario = 500;
 
     // Verificação de capacidade
     const warnings: string[] = [];
@@ -234,8 +108,7 @@ const QuoteForm = () => {
       truck,
       toco,
       utilitario,
-      warnings,
-      distance
+      warnings
     });
   };
 
@@ -263,8 +136,7 @@ Dados do orçamento:
 - Origem: ${formData.originCity}/${formData.originState}
 - Destino: ${formData.destinationCity}/${formData.destinationState}
 - Tipo de carga: ${formData.cargoType}
-- Peso: ${formData.weight}kg
-- Distância: ${calculatedDistance}km`
+- Peso: ${formData.weight}kg`
     );
     
     window.open(`https://wa.me/5511982066490?text=${message}`, '_blank');
@@ -429,26 +301,6 @@ Dados do orçamento:
                      </div>
                    </div>
 
-                   {/* Distance Display */}
-                   {calculatedDistance && (
-                     <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                       <div className="flex items-center space-x-2">
-                         <MapPin className="h-5 w-5 text-green-600" />
-                         <span className="font-semibold text-green-800">
-                           Distância calculada: {calculatedDistance} km
-                         </span>
-                       </div>
-                     </div>
-                   )}
-
-                   {isCalculatingDistance && (
-                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                       <div className="flex items-center space-x-2">
-                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                         <span className="text-blue-800">Calculando distância...</span>
-                       </div>
-                     </div>
-                   )}
 
                    <div className="grid md:grid-cols-3 gap-4">
                      <div className="space-y-2">
@@ -504,13 +356,12 @@ Dados do orçamento:
                     />
                   </div>
 
-                   <Button 
-                     type="submit" 
-                     className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold"
-                     disabled={!calculatedDistance || isCalculatingDistance}
-                   >
-                     {isCalculatingDistance ? "Calculando distância..." : "Calcular Frete"}
-                   </Button>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold"
+                    >
+                      Calcular Frete
+                    </Button>
                  </form>
 
                  {quoteResults && (
@@ -539,30 +390,30 @@ Dados do orçamento:
                            </TableRow>
                          </TableHeader>
                          <TableBody>
-                           <TableRow>
-                             <TableCell className="font-medium">Truck</TableCell>
-                             <TableCell>até 12.000kg</TableCell>
-                             <TableCell>{quoteResults.distance} km</TableCell>
-                             <TableCell className="text-right font-semibold">
-                               R$ {quoteResults.truck.toFixed(2).replace('.', ',')}
-                             </TableCell>
-                           </TableRow>
-                           <TableRow>
-                             <TableCell className="font-medium">Toco</TableCell>
-                             <TableCell>até 6.000kg</TableCell>
-                             <TableCell>{quoteResults.distance} km</TableCell>
-                             <TableCell className="text-right font-semibold">
-                               R$ {quoteResults.toco.toFixed(2).replace('.', ',')}
-                             </TableCell>
-                           </TableRow>
-                           <TableRow>
-                             <TableCell className="font-medium">Utilitário</TableCell>
-                             <TableCell>até 1.500kg</TableCell>
-                             <TableCell>{quoteResults.distance} km</TableCell>
-                             <TableCell className="text-right font-semibold">
-                               R$ {quoteResults.utilitario.toFixed(2).replace('.', ',')}
-                             </TableCell>
-                           </TableRow>
+                            <TableRow>
+                              <TableCell className="font-medium">Truck</TableCell>
+                              <TableCell>até 12.000kg</TableCell>
+                              <TableCell>A consultar</TableCell>
+                              <TableCell className="text-right font-semibold">
+                                R$ {quoteResults.truck.toFixed(2).replace('.', ',')}
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="font-medium">Toco</TableCell>
+                              <TableCell>até 6.000kg</TableCell>
+                              <TableCell>A consultar</TableCell>
+                              <TableCell className="text-right font-semibold">
+                                R$ {quoteResults.toco.toFixed(2).replace('.', ',')}
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="font-medium">Utilitário</TableCell>
+                              <TableCell>até 1.500kg</TableCell>
+                              <TableCell>A consultar</TableCell>
+                              <TableCell className="text-right font-semibold">
+                                R$ {quoteResults.utilitario.toFixed(2).replace('.', ',')}
+                              </TableCell>
+                            </TableRow>
                          </TableBody>
                        </Table>
                      </div>
