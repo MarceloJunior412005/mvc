@@ -48,9 +48,13 @@ const Header = () => {
             <a href="#contato" className="text-foreground hover:text-primary transition-colors">Contato</a>
           </nav>
 
-          <a href="#orcamento">
-            <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold">
-              Solicitar Orçamento
+          <a
+            href="https://wa.me/5511982066490?text=Ol%C3%A1!%20Gostaria%20de%20um%20or%C3%A7amento%20de%20transporte."
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold">
+              Solicitar Orçamento no WhatsApp
             </Button>
           </a>
         </div>

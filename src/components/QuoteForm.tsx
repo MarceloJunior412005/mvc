@@ -5,8 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Calculator, Phone, MessageCircle, MapPin } from "lucide-react";
+import { Calculator, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const SUPABASE_URL = 'https://cvjxfedmojojgqgzrqhk.supabase.co'
@@ -15,37 +14,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const QuoteForm = () => {
   const { toast } = useToast();
   
-  // Estados e cidades do Brasil
-  const brasilData = {
-    "AC": ["Rio Branco", "Cruzeiro do Sul", "Sena Madureira", "Tarauacá"],
-    "AL": ["Maceió", "Arapiraca", "Palmeira dos Índios", "Rio Largo"],
-    "AP": ["Macapá", "Santana", "Laranjal do Jari", "Oiapoque"],
-    "AM": ["Manaus", "Parintins", "Itacoatiara", "Manacapuru"],
-    "BA": ["Salvador", "Feira de Santana", "Vitória da Conquista", "Camaçari", "Juazeiro", "Ilhéus"],
-    "CE": ["Fortaleza", "Caucaia", "Juazeiro do Norte", "Maracanaú", "Sobral"],
-    "DF": ["Brasília", "Taguatinga", "Ceilândia", "Planaltina"],
-    "ES": ["Vitória", "Vila Velha", "Serra", "Cariacica", "Linhares"],
-    "GO": ["Goiânia", "Aparecida de Goiânia", "Anápolis", "Rio Verde", "Luziânia"],
-    "MA": ["São Luís", "Imperatriz", "São José de Ribamar", "Timon", "Caxias"],
-    "MT": ["Cuiabá", "Várzea Grande", "Rondonópolis", "Sinop", "Tangará da Serra"],
-    "MS": ["Campo Grande", "Dourados", "Três Lagoas", "Corumbá", "Ponta Porã"],
-    "MG": ["Belo Horizonte", "Uberlândia", "Contagem", "Juiz de Fora", "Betim", "Montes Claros"],
-    "PA": ["Belém", "Ananindeua", "Santarém", "Marabá", "Castanhal"],
-    "PB": ["João Pessoa", "Campina Grande", "Santa Rita", "Patos", "Bayeux"],
-    "PR": ["Curitiba", "Londrina", "Maringá", "Ponta Grossa", "Cascavel", "São José dos Pinhais"],
-    "PE": ["Recife", "Jaboatão dos Guararapes", "Olinda", "Caruaru", "Petrolina"],
-    "PI": ["Teresina", "Parnaíba", "Picos", "Piripiri", "Floriano"],
-    "RJ": ["Rio de Janeiro", "São Gonçalo", "Duque de Caxias", "Nova Iguaçu", "Niterói", "Campos dos Goytacazes"],
-    "RN": ["Natal", "Mossoró", "Parnamirim", "São Gonçalo do Amarante", "Macaíba"],
-    "RS": ["Porto Alegre", "Caxias do Sul", "Pelotas", "Canoas", "Santa Maria", "Gravataí"],
-    "RO": ["Porto Velho", "Ji-Paraná", "Ariquemes", "Vilhena", "Cacoal"],
-    "RR": ["Boa Vista", "Rorainópolis", "Caracaraí", "Alto Alegre"],
-    "SC": ["Florianópolis", "Joinville", "Blumenau", "São José", "Criciúma", "Chapecó"],
-    "SP": ["São Paulo", "Guarulhos", "Campinas", "São Bernardo do Campo", "Santo André", "Osasco", "Ribeirão Preto", "Sorocaba"],
-    "SE": ["Aracaju", "Nossa Senhora do Socorro", "Lagarto", "Itabaiana", "Estância"],
-    "TO": ["Palmas", "Araguaína", "Gurupi", "Porto Nacional", "Paraíso do Tocantins"]
-  };
-
+  // Form state must be declared before effects that reference it
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -60,57 +29,56 @@ const QuoteForm = () => {
     urgency: "",
     description: ""
   });
+  
+  // IBGE: lista de UFs e cidades por UF (cache em localStorage)
+  const [ufs, setUfs] = useState<string[]>([]);
+  const [citiesByUf, setCitiesByUf] = useState<Record<string, string[]>>({});
 
-  const [quoteResults, setQuoteResults] = useState<{
-    truck: number;
-    toco: number;
-    utilitario: number;
-    warnings: string[];
-  } | null>(null);
-
-  const calculateFreight = () => {
-    const weight = parseFloat(formData.weight);
-    
-    if (!weight) {
-      toast({
-        title: "Dados insuficientes",
-        description: "É necessário informar o peso da carga.",
-        variant: "destructive"
-      });
-      return;
+  useEffect(() => {
+    const cached = localStorage.getItem('ibge_ufs');
+    if (cached) {
+      try { setUfs(JSON.parse(cached)); } catch { /* ignore */ }
     }
-
-    // Capacidades dos veículos
-    const capacities = {
-      truck: 12000,
-      toco: 6000,
-      utilitario: 1500
+    const loadUfs = async () => {
+      try {
+        const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
+        const data = await res.json() as Array<{ id: number; sigla: string; nome: string }>;
+        const siglas = data.map((e) => e.sigla);
+        setUfs(siglas);
+        localStorage.setItem('ibge_ufs', JSON.stringify(siglas));
+      } catch (e) {
+        toast({ title: 'Erro ao carregar UFs', description: 'Tente novamente mais tarde.', variant: 'destructive' });
+      }
     };
+    if (!cached) loadUfs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    // Valores base fixos para orçamento (sem cálculo automático)
-    const truck = 1200;
-    const toco = 800;
-    const utilitario = 500;
-
-    // Verificação de capacidade
-    const warnings: string[] = [];
-    if (weight > capacities.truck) {
-      warnings.push("Truck: Carga acima da capacidade do veículo escolhido.");
+  const fetchCitiesForUf = async (uf: string) => {
+    if (!uf) return;
+    const cacheKey = `ibge_cities_${uf}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached) as string[];
+        setCitiesByUf((prev) => ({ ...prev, [uf]: parsed }));
+        return;
+      } catch { /* ignore and refetch */ }
     }
-    if (weight > capacities.toco) {
-      warnings.push("Toco: Carga acima da capacidade do veículo escolhido.");
+    try {
+      const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`);
+      const data = await res.json() as Array<{ id: number; nome: string }>;
+      const names = data.map((c) => c.nome);
+      setCitiesByUf((prev) => ({ ...prev, [uf]: names }));
+      localStorage.setItem(cacheKey, JSON.stringify(names));
+    } catch (e) {
+      toast({ title: `Erro ao carregar cidades de ${uf}`, description: 'Tente novamente mais tarde.', variant: 'destructive' });
     }
-    if (weight > capacities.utilitario) {
-      warnings.push("Utilitário: Carga acima da capacidade do veículo escolhido.");
-    }
-
-    setQuoteResults({
-      truck,
-      toco,
-      utilitario,
-      warnings
-    });
   };
+
+  // Carregar cidades quando uma UF for selecionada
+  useEffect(() => { if (formData.originState) fetchCitiesForUf(formData.originState); }, [formData.originState]);
+  useEffect(() => { if (formData.destinationState) fetchCitiesForUf(formData.destinationState); }, [formData.destinationState]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,7 +92,7 @@ const QuoteForm = () => {
       return;
     }
     
-    calculateFreight();
+    handleWhatsAppContact();
   };
 
   const handleWhatsAppContact = () => {
@@ -233,7 +201,7 @@ Dados do orçamento:
                                <SelectValue placeholder="UF" />
                              </SelectTrigger>
                              <SelectContent className="bg-background border border-border z-50">
-                               {Object.keys(brasilData).map((uf) => (
+                               {(ufs.length ? ufs : Object.keys(citiesByUf)).map((uf) => (
                                  <SelectItem key={uf} value={uf}>{uf}</SelectItem>
                                ))}
                              </SelectContent>
@@ -247,12 +215,18 @@ Dados do orçamento:
                              disabled={!formData.originState}
                            >
                              <SelectTrigger className="bg-background">
-                               <SelectValue placeholder="Cidade" />
+                               <SelectValue placeholder={formData.originState ? "Selecione a cidade" : "Primeiro selecione o estado"} />
                              </SelectTrigger>
                              <SelectContent className="bg-background border border-border z-50">
-                               {formData.originState && brasilData[formData.originState as keyof typeof brasilData]?.map((city) => (
-                                 <SelectItem key={city} value={city}>{city}</SelectItem>
-                               ))}
+                               {formData.originState && citiesByUf[formData.originState]?.length > 0
+                                 ? citiesByUf[formData.originState].map((city) => (
+                                     <SelectItem key={city} value={city}>{city}</SelectItem>
+                                   ))
+                                 : formData.originState ? (
+                                     <SelectItem disabled value="__no_cities__">Nenhuma cidade encontrada</SelectItem>
+                                   ) : (
+                                     <SelectItem disabled value="__select_state__">Selecione um estado primeiro</SelectItem>
+                                   )}
                              </SelectContent>
                            </Select>
                          </div>
@@ -274,7 +248,7 @@ Dados do orçamento:
                                <SelectValue placeholder="UF" />
                              </SelectTrigger>
                              <SelectContent className="bg-background border border-border z-50">
-                               {Object.keys(brasilData).map((uf) => (
+                               {(ufs.length ? ufs : Object.keys(citiesByUf)).map((uf) => (
                                  <SelectItem key={uf} value={uf}>{uf}</SelectItem>
                                ))}
                              </SelectContent>
@@ -288,59 +262,22 @@ Dados do orçamento:
                              disabled={!formData.destinationState}
                            >
                              <SelectTrigger className="bg-background">
-                               <SelectValue placeholder="Cidade" />
+                               <SelectValue placeholder={formData.destinationState ? "Selecione a cidade" : "Primeiro selecione o estado"} />
                              </SelectTrigger>
                              <SelectContent className="bg-background border border-border z-50">
-                               {formData.destinationState && brasilData[formData.destinationState as keyof typeof brasilData]?.map((city) => (
-                                 <SelectItem key={city} value={city}>{city}</SelectItem>
-                               ))}
+                               {formData.destinationState && citiesByUf[formData.destinationState]?.length > 0
+                                 ? citiesByUf[formData.destinationState].map((city) => (
+                                     <SelectItem key={city} value={city}>{city}</SelectItem>
+                                   ))
+                                 : formData.destinationState ? (
+                                     <SelectItem disabled value="__no_cities__">Nenhuma cidade encontrada</SelectItem>
+                                   ) : (
+                                     <SelectItem disabled value="__select_state__">Selecione um estado primeiro</SelectItem>
+                                   )}
                              </SelectContent>
                            </Select>
                          </div>
                        </div>
-                     </div>
-                   </div>
-
-
-                   <div className="grid md:grid-cols-3 gap-4">
-                     <div className="space-y-2">
-                       <Label>Tipo de Carga *</Label>
-                       <Select value={formData.cargoType} onValueChange={(value) => handleInputChange("cargoType", value)}>
-                         <SelectTrigger className="bg-background">
-                           <SelectValue placeholder="Selecione" />
-                         </SelectTrigger>
-                         <SelectContent className="bg-background border border-border z-50">
-                           <SelectItem value="seca">Carga Seca</SelectItem>
-                           <SelectItem value="refrigerada">Refrigerada</SelectItem>
-                           <SelectItem value="perigosa">Perigosa</SelectItem>
-                           <SelectItem value="fragil">Frágil</SelectItem>
-                           <SelectItem value="especial">Especial</SelectItem>
-                         </SelectContent>
-                       </Select>
-                     </div>
-                     <div className="space-y-2">
-                       <Label htmlFor="weight">Peso (kg) *</Label>
-                       <Input 
-                         id="weight"
-                         type="number"
-                         placeholder="0"
-                         value={formData.weight}
-                         onChange={(e) => handleInputChange("weight", e.target.value)}
-                         required
-                       />
-                     </div>
-                     <div className="space-y-2">
-                       <Label>Urgência</Label>
-                       <Select value={formData.urgency} onValueChange={(value) => handleInputChange("urgency", value)}>
-                         <SelectTrigger className="bg-background">
-                           <SelectValue placeholder="Selecione" />
-                         </SelectTrigger>
-                         <SelectContent className="bg-background border border-border z-50">
-                           <SelectItem value="normal">Normal</SelectItem>
-                           <SelectItem value="urgente">Urgente</SelectItem>
-                           <SelectItem value="expressa">Expressa</SelectItem>
-                         </SelectContent>
-                       </Select>
                      </div>
                    </div>
 
@@ -358,78 +295,14 @@ Dados do orçamento:
 
                     <Button 
                       type="submit" 
-                      className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold"
+                      className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
                     >
-                      Calcular Frete
+                      Enviar pelo WhatsApp
                     </Button>
                  </form>
-
-                 {quoteResults && (
-                   <div className="mt-8 space-y-4">
-                     <h3 className="text-xl font-semibold">Orçamento Calculado</h3>
-                     
-                     {quoteResults.warnings.length > 0 && (
-                       <div className="bg-destructive/10 border border-destructive/20 text-destructive rounded-lg p-4">
-                         <h4 className="font-semibold mb-2">Atenção:</h4>
-                         <ul className="list-disc list-inside space-y-1">
-                           {quoteResults.warnings.map((warning, index) => (
-                             <li key={index} className="text-sm">{warning}</li>
-                           ))}
-                         </ul>
-                       </div>
-                     )}
-
-                     <div className="border rounded-lg overflow-hidden">
-                       <Table>
-                         <TableHeader>
-                           <TableRow>
-                             <TableHead>Tipo de Veículo</TableHead>
-                             <TableHead>Capacidade</TableHead>
-                             <TableHead>Distância</TableHead>
-                             <TableHead className="text-right">Valor do Frete</TableHead>
-                           </TableRow>
-                         </TableHeader>
-                         <TableBody>
-                            <TableRow>
-                              <TableCell className="font-medium">Truck</TableCell>
-                              <TableCell>até 12.000kg</TableCell>
-                              <TableCell>A consultar</TableCell>
-                              <TableCell className="text-right font-semibold">
-                                R$ {quoteResults.truck.toFixed(2).replace('.', ',')}
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell className="font-medium">Toco</TableCell>
-                              <TableCell>até 6.000kg</TableCell>
-                              <TableCell>A consultar</TableCell>
-                              <TableCell className="text-right font-semibold">
-                                R$ {quoteResults.toco.toFixed(2).replace('.', ',')}
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell className="font-medium">Utilitário</TableCell>
-                              <TableCell>até 1.500kg</TableCell>
-                              <TableCell>A consultar</TableCell>
-                              <TableCell className="text-right font-semibold">
-                                R$ {quoteResults.utilitario.toFixed(2).replace('.', ',')}
-                              </TableCell>
-                            </TableRow>
-                         </TableBody>
-                       </Table>
-                     </div>
-
-                     <Button 
-                       onClick={handleWhatsAppContact}
-                       className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
-                     >
-                       <MessageCircle className="h-4 w-4 mr-2" />
-                       Entrar em contato
-                     </Button>
-                   </div>
-                 )}
-               </CardContent>
-             </Card>
-          </div>
+              </CardContent>
+            </Card>
+         </div>
 
           <div className="space-y-6">
             <Card className="bg-primary text-primary-foreground">
