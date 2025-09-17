@@ -107,4 +107,35 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Prevent text from being editable by default */
+  * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Allow text selection for specific elements */
+  input, textarea, [contenteditable="true"], .selectable-text {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
+
+  /* Prevent cursor text on non-input elements */
+  p, h1, h2, h3, h4, h5, h6, span, div, a {
+    cursor: default !important;
+  }
+
+  /* Ensure proper cursor for interactive elements */
+  button, [role="button"], a[href] {
+    cursor: pointer !important;
+  }
+
+  /* Ensure proper cursor for input elements */
+  input, textarea, [contenteditable="true"] {
+    cursor: text !important;
+  }
 }

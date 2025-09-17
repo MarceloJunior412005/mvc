@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Calculator, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Combobox, ComboboxOption } from "@/components/ui/combobox";
 
 const SUPABASE_URL = 'https://cvjxfedmojojgqgzrqhk.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2anhmZWRtb2pvamRxZ3pycWhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY0NDQ1NzEsImV4cCI6MjA0MjAyMDU3MX0.0YnpFBP6C2QzCBKV5F1uVbOJFXKYKZEY2IuBLEtUj4c'
@@ -101,17 +102,42 @@ const QuoteForm = () => {
       
 Dados do orçamento:
 - Nome: ${formData.name}
+- Email: ${formData.email}
+- Telefone: ${formData.phone}
+- Empresa: ${formData.company}
 - Origem: ${formData.originCity}/${formData.originState}
 - Destino: ${formData.destinationCity}/${formData.destinationState}
 - Tipo de carga: ${formData.cargoType}
-- Peso: ${formData.weight}kg`
+- Peso: ${formData.weight}kg
+- Urgência: ${formData.urgency}
+- Descrição: ${formData.description}`
     );
     
     window.open(`https://wa.me/5511982066490?text=${message}`, '_blank');
   };
 
   const handleInputChange = (field: string, value: string) => {
+    // Validação para telefone - apenas números, parênteses, espaços e hífens
+    if (field === 'phone') {
+      const phoneRegex = /^[\d\s\(\)\-\+]*$/;
+      if (!phoneRegex.test(value)) {
+        return; // Não permite caracteres inválidos
+      }
+    }
+    
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone: string) => {
+    // Remove caracteres não numéricos para validação
+    const cleanPhone = phone.replace(/\D/g, '');
+    // Aceita telefones com 10 ou 11 dígitos (com ou sem DDD)
+    return cleanPhone.length >= 10 && cleanPhone.length <= 11;
   };
 
   return (
@@ -168,19 +194,29 @@ Dados do orçamento:
                       <Input 
                         id="email"
                         type="email"
+                        placeholder="exemplo@email.com"
                         value={formData.email}
                         onChange={(e) => handleInputChange("email", e.target.value)}
+                        className={formData.email && !validateEmail(formData.email) ? "border-red-500" : ""}
                         required
                       />
+                      {formData.email && !validateEmail(formData.email) && (
+                        <p className="text-red-500 text-sm">Por favor, insira um email válido</p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="phone">Telefone *</Label>
                       <Input 
                         id="phone"
+                        placeholder="(11) 99999-9999"
                         value={formData.phone}
                         onChange={(e) => handleInputChange("phone", e.target.value)}
+                        className={formData.phone && !validatePhone(formData.phone) ? "border-red-500" : ""}
                         required
                       />
+                      {formData.phone && !validatePhone(formData.phone) && (
+                        <p className="text-red-500 text-sm">Por favor, insira um telefone válido (10-11 dígitos)</p>
+                      )}
                     </div>
                   </div>
 
@@ -190,45 +226,38 @@ Dados do orçamento:
                        <div className="grid grid-cols-2 gap-2">
                          <div className="space-y-2">
                            <Label>Estado</Label>
-                           <Select 
-                             value={formData.originState} 
-                             onValueChange={(value) => {
+                           <Combobox
+                             options={(ufs.length ? ufs : Object.keys(citiesByUf)).map(uf => ({ value: uf, label: uf }))}
+                             value={formData.originState}
+                             onChange={(value) => {
                                handleInputChange("originState", value);
                                handleInputChange("originCity", ""); // Reset city when state changes
                              }}
-                           >
-                             <SelectTrigger className="bg-background">
-                               <SelectValue placeholder="UF" />
-                             </SelectTrigger>
-                             <SelectContent className="bg-background border border-border z-50">
-                               {(ufs.length ? ufs : Object.keys(citiesByUf)).map((uf) => (
-                                 <SelectItem key={uf} value={uf}>{uf}</SelectItem>
-                               ))}
-                             </SelectContent>
-                           </Select>
+                             placeholder="Digite para buscar UF"
+                             searchPlaceholder="Digite para buscar..."
+                             emptyMessage="Nenhuma UF encontrada"
+                           />
                          </div>
                          <div className="space-y-2">
                            <Label>Cidade</Label>
-                           <Select 
-                             value={formData.originCity} 
-                             onValueChange={(value) => handleInputChange("originCity", value)}
-                             disabled={!formData.originState}
-                           >
-                             <SelectTrigger className="bg-background">
-                               <SelectValue placeholder={formData.originState ? "Selecione a cidade" : "Primeiro selecione o estado"} />
-                             </SelectTrigger>
-                             <SelectContent className="bg-background border border-border z-50">
-                               {formData.originState && citiesByUf[formData.originState]?.length > 0
-                                 ? citiesByUf[formData.originState].map((city) => (
-                                     <SelectItem key={city} value={city}>{city}</SelectItem>
-                                   ))
-                                 : formData.originState ? (
-                                     <SelectItem disabled value="__no_cities__">Nenhuma cidade encontrada</SelectItem>
-                                   ) : (
-                                     <SelectItem disabled value="__select_state__">Selecione um estado primeiro</SelectItem>
-                                   )}
-                             </SelectContent>
-                           </Select>
+                           {formData.originState && citiesByUf[formData.originState]?.length > 0 ? (
+                             <Combobox
+                               options={citiesByUf[formData.originState].map(city => ({ value: city, label: city }))}
+                               value={formData.originCity}
+                               onChange={(value) => handleInputChange("originCity", value)}
+                               placeholder={formData.originState ? "Digite para buscar a cidade" : "Primeiro selecione o estado"}
+                               searchPlaceholder="Digite para buscar..."
+                               emptyMessage="Nenhuma cidade encontrada"
+                               disabled={!formData.originState}
+                             />
+                           ) : (
+                             <Select disabled value="">
+                               <SelectTrigger className="bg-background">
+                                 <SelectValue placeholder={formData.originState ? "Carregando cidades..." : "Primeiro selecione o estado"} />
+                               </SelectTrigger>
+                               <SelectContent />
+                             </Select>
+                           )}
                          </div>
                        </div>
                      </div>
@@ -237,52 +266,94 @@ Dados do orçamento:
                        <div className="grid grid-cols-2 gap-2">
                          <div className="space-y-2">
                            <Label>Estado</Label>
-                           <Select 
-                             value={formData.destinationState} 
-                             onValueChange={(value) => {
+                           <Combobox
+                             options={(ufs.length ? ufs : Object.keys(citiesByUf)).map(uf => ({ value: uf, label: uf }))}
+                             value={formData.destinationState}
+                             onChange={(value) => {
                                handleInputChange("destinationState", value);
                                handleInputChange("destinationCity", ""); // Reset city when state changes
                              }}
-                           >
-                             <SelectTrigger className="bg-background">
-                               <SelectValue placeholder="UF" />
-                             </SelectTrigger>
-                             <SelectContent className="bg-background border border-border z-50">
-                               {(ufs.length ? ufs : Object.keys(citiesByUf)).map((uf) => (
-                                 <SelectItem key={uf} value={uf}>{uf}</SelectItem>
-                               ))}
-                             </SelectContent>
-                           </Select>
+                             placeholder="Digite para buscar UF"
+                             searchPlaceholder="Digite para buscar..."
+                             emptyMessage="Nenhuma UF encontrada"
+                           />
                          </div>
                          <div className="space-y-2">
                            <Label>Cidade</Label>
-                           <Select 
-                             value={formData.destinationCity} 
-                             onValueChange={(value) => handleInputChange("destinationCity", value)}
-                             disabled={!formData.destinationState}
-                           >
-                             <SelectTrigger className="bg-background">
-                               <SelectValue placeholder={formData.destinationState ? "Selecione a cidade" : "Primeiro selecione o estado"} />
-                             </SelectTrigger>
-                             <SelectContent className="bg-background border border-border z-50">
-                               {formData.destinationState && citiesByUf[formData.destinationState]?.length > 0
-                                 ? citiesByUf[formData.destinationState].map((city) => (
-                                     <SelectItem key={city} value={city}>{city}</SelectItem>
-                                   ))
-                                 : formData.destinationState ? (
-                                     <SelectItem disabled value="__no_cities__">Nenhuma cidade encontrada</SelectItem>
-                                   ) : (
-                                     <SelectItem disabled value="__select_state__">Selecione um estado primeiro</SelectItem>
-                                   )}
-                             </SelectContent>
-                           </Select>
+                           {formData.destinationState && citiesByUf[formData.destinationState]?.length > 0 ? (
+                             <Combobox
+                               options={citiesByUf[formData.destinationState].map(city => ({ value: city, label: city }))}
+                               value={formData.destinationCity}
+                               onChange={(value) => handleInputChange("destinationCity", value)}
+                               placeholder={formData.destinationState ? "Digite para buscar a cidade" : "Primeiro selecione o estado"}
+                               searchPlaceholder="Digite para buscar..."
+                               emptyMessage="Nenhuma cidade encontrada"
+                               disabled={!formData.destinationState}
+                             />
+                           ) : (
+                             <Select disabled value="">
+                               <SelectTrigger className="bg-background">
+                                 <SelectValue placeholder={formData.destinationState ? "Carregando cidades..." : "Primeiro selecione o estado"} />
+                               </SelectTrigger>
+                               <SelectContent />
+                             </Select>
+                           )}
                          </div>
                        </div>
                      </div>
                    </div>
 
+                  <div className="grid md:grid-cols-3 gap-4 mt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="cargoType">Tipo de Carga *</Label>
+                      <Select 
+                        value={formData.cargoType} 
+                        onValueChange={(value) => handleInputChange("cargoType", value)}
+                        required
+                      >
+                        <SelectTrigger className="bg-background">
+                          <SelectValue placeholder="Selecione o tipo de carga" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background border border-border z-50">
+                          <SelectItem value="Carga Seca">Carga Seca</SelectItem>
+                          <SelectItem value="Carga Batida(Solta)">Carga Batida (Solta)</SelectItem>
+                          <SelectItem value="Carga Paletizada">Carga Paletizada</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="weight">Peso (kg) *</Label>
+                      <Input 
+                        id="weight"
+                        type="number"
+                        placeholder="Ex: 1000"
+                        value={formData.weight}
+                        onChange={(e) => handleInputChange("weight", e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="urgency">Urgência *</Label>
+                      <Select 
+                        value={formData.urgency} 
+                        onValueChange={(value) => handleInputChange("urgency", value)}
+                        required
+                      >
+                        <SelectTrigger className="bg-background">
+                          <SelectValue placeholder="Selecione a urgência" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background border border-border z-50">
+                          <SelectItem value="Urgente">Urgente</SelectItem>
+                          <SelectItem value="Normal">Normal</SelectItem>
+                          <SelectItem value="Agendada">Agendada</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 mt-4">
                     <Label htmlFor="description">Descrição da Carga</Label>
                     <Textarea 
                       id="description"

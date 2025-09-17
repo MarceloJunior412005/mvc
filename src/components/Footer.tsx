@@ -12,7 +12,7 @@ const Footer = () => {
               className="h-12 w-auto filter brightness-0 invert"
             />
             <p className="text-primary-foreground/80 text-sm">
-              Há mais de 10 anos oferecendo soluções completas em transporte de cargas 
+              Há mais de 20 anos oferecendo soluções completas em transporte de cargas 
               por todo o Brasil com segurança e pontualidade.
             </p>
             <div className="flex space-x-4">
@@ -25,11 +25,11 @@ const Footer = () => {
           <div className="space-y-4">
             <h3 className="font-semibold text-lg">Serviços</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="text-primary-foreground/80 hover:text-secondary transition-colors">Transporte Rodoviário</a></li>
-              <li><a href="#" className="text-primary-foreground/80 hover:text-secondary transition-colors">Logística Integrada</a></li>
-              <li><a href="#" className="text-primary-foreground/80 hover:text-secondary transition-colors">Entrega Expressa</a></li>
-              <li><a href="#" className="text-primary-foreground/80 hover:text-secondary transition-colors">Coleta Programada</a></li>
-              <li><a href="#" className="text-primary-foreground/80 hover:text-secondary transition-colors">Seguro de Cargas</a></li>
+              <li><a href="#servicos" className="text-primary-foreground/80 hover:text-secondary transition-colors">Transporte Rodoviário</a></li>
+              <li><a href="#servicos" className="text-primary-foreground/80 hover:text-secondary transition-colors">Logística Integrada</a></li>
+              <li><a href="#servicos" className="text-primary-foreground/80 hover:text-secondary transition-colors">Entrega Expressa</a></li>
+              <li><a href="#servicos" className="text-primary-foreground/80 hover:text-secondary transition-colors">Coleta Programada</a></li>
+              <li><a href="#servicos" className="text-primary-foreground/80 hover:text-secondary transition-colors">Seguro de Cargas</a></li>
             </ul>
           </div>
 
@@ -76,7 +76,7 @@ const Footer = () => {
 
         <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center">
           <p className="text-primary-foreground/60 text-sm">
-            © 2024 MVC Transportes. Todos os direitos reservados.
+            © 2000 - {new Date().getFullYear()} MVC Transportes. Todos os direitos reservados.
           </p>
         </div>
       </div>
