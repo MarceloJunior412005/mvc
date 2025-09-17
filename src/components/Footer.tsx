@@ -7,7 +7,7 @@ const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-[1.25fr_1fr_1fr_1.4fr] gap-8">
           <div className="space-y-4">
             <img 
-              src="/lovable-uploads/41ee31ee-ad60-4284-bbb5-5b0be31145fe.png" 
+              src="/arquivos_site/logo_site.png" 
               alt="MVC Transportes" 
               className="h-12 w-auto filter brightness-0 invert"
             />

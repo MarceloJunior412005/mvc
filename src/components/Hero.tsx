@@ -38,7 +38,7 @@ const Hero = () => {
           <div className="relative">
             <div className="relative z-10">
               <img 
-                src="/lovable-uploads/41ee31ee-ad60-4284-bbb5-5b0be31145fe.png" 
+                src="/arquivos_site/logo_site.png" 
                 alt="MVC Transportes - Logo" 
                 className="h-64 w-64 lg:h-80 lg:w-80 mx-auto object-contain opacity-90" 
               />

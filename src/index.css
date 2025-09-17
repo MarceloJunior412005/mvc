@@ -108,20 +108,31 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 
-  /* Prevent text from being editable by default */
+  /* Allow text selection by default */
   * {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
+
+  /* Prevent text selection for interactive elements */
+  button, [role="button"], .no-select {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
   }
 
-  /* Allow text selection for specific elements */
-  input, textarea, [contenteditable="true"], .selectable-text {
-    -webkit-user-select: text;
-    -moz-user-select: text;
-    -ms-user-select: text;
-    user-select: text;
+  /* Custom text selection highlighting */
+  ::selection {
+    background-color: #3b82f6;
+    color: white;
+  }
+
+  ::-moz-selection {
+    background-color: #3b82f6;
+    color: white;
   }
 
   /* Prevent cursor text on non-input elements */

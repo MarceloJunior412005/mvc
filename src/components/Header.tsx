@@ -35,7 +35,7 @@ const Header = () => {
         <div className="flex flex-col md:flex-row items-center">
           <div className="flex items-center justify-center w-full md:w-auto md:mr-8">
             <img 
-              src="/lovable-uploads/41ee31ee-ad60-4284-bbb5-5b0be31145fe.png" 
+              src="/arquivos_site/logo_site.png" 
               alt="MVC Transportes - Logotipo" 
               className="h-16 w-auto" 
             />
