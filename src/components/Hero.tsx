@@ -12,7 +12,7 @@ const Hero = () => {
                 <span className="block text-secondary">Rápido e Seguro</span>
               </h1>
               <p className="text-lg text-primary-foreground/90 leading-relaxed">
-                Há mais de 20 anos conectando empresas por todo o Brasil com soluções 
+                Há quase 30 anos conectando empresas por todo o Brasil com soluções 
                 logísticas eficientes. Sua carga em mãos seguras, sempre no prazo.
               </p>
             </div>

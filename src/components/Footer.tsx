@@ -12,7 +12,7 @@ const Footer = () => {
               className="h-12 w-auto filter brightness-0 invert"
             />
             <p className="text-primary-foreground/80 text-sm">
-              Há mais de 20 anos oferecendo soluções completas em transporte de cargas 
+              Há quase 30 anos oferecendo soluções completas em transporte de cargas 
               por todo o Brasil com segurança e pontualidade.
             </p>
             <div className="flex space-x-4">
@@ -38,7 +38,7 @@ const Footer = () => {
             <ul className="space-y-2 text-sm">
               <li><a href="#inicio" className="text-primary-foreground/80 hover:text-secondary transition-colors">Início</a></li>
               <li><a href="#servicos" className="text-primary-foreground/80 hover:text-secondary transition-colors">Serviços</a></li>
-              <li><a href="#sobre" className="text-primary-foreground/80 hover:text-secondary transition-colors">Sobre Nós</a></li>
+              <li><a href="#clientes" className="text-primary-foreground/80 hover:text-secondary transition-colors">Clientes</a></li>
               <li><a href="#orcamento" className="text-primary-foreground/80 hover:text-secondary transition-colors">Orçamento</a></li>
               <li><a href="#contato" className="text-primary-foreground/80 hover:text-secondary transition-colors">Contato</a></li>
             </ul>
