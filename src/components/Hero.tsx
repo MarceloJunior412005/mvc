@@ -1,7 +1,5 @@
 import { Shield, Clock, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { COMPANY_STATS } from '@/lib/constants';
-import StatsCounter from './StatsCounter';
 import heroImage from '@/assets/hero-truck.jpg';
 
 const Hero = () => {
@@ -72,8 +70,6 @@ const Hero = () => {
             </div>
           </div>
         </div>
-
-        <StatsCounter stats={COMPANY_STATS} />
       </div>
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

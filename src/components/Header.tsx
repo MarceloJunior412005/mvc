@@ -44,7 +44,7 @@ const Header = () => {
             <img 
               src="/arquivos_site/logo_site.png" 
               alt={`${COMPANY_INFO.name} - Logotipo`}
-              className="h-12 md:h-16 w-auto" 
+              className="h-16 md:h-20 w-auto"
             />
           </a>
 

@@ -112,7 +112,7 @@ const Clients = () => {
                 <img
                   src={client.logo}
                   alt={`Logo da ${client.name}`}
-                  className="relative max-w-full max-h-full object-contain filter grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                  className="relative max-w-full max-h-full object-contain transition-all duration-500"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
