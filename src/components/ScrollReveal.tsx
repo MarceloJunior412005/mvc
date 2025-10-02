@@ -1,4 +1,4 @@
-import { useEffect, useRef, ReactNode } from 'react';
+import { useEffect, useRef, ReactNode, useState } from 'react';
 
 interface ScrollRevealProps {
   children: ReactNode;
@@ -8,13 +8,14 @@ interface ScrollRevealProps {
 
 const ScrollReveal = ({ children, className = '', delay = 0 }: ScrollRevealProps) => {
   const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setTimeout(() => {
-            entry.target.classList.add('animate-fade-in');
+            setIsVisible(true);
           }, delay);
           observer.unobserve(entry.target);
         }
@@ -30,7 +31,10 @@ const ScrollReveal = ({ children, className = '', delay = 0 }: ScrollRevealProps
   }, [delay]);
 
   return (
-    <div ref={ref} className={`opacity-0 ${className}`}>
+    <div 
+      ref={ref} 
+      className={`transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} ${className}`}
+    >
       {children}
     </div>
   );
