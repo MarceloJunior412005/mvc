@@ -81,7 +81,13 @@ const MultiStepForm = () => {
     return true;
   };
 
-  const nextStep = () => {
+  const nextStep = (e?: React.MouseEvent<HTMLButtonElement>) => {
+    // Prevent any default behavior
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (validateStep(step)) {
       if (step === 2) {
         // Trigger city fetch for both states before moving to step 3
@@ -92,7 +98,13 @@ const MultiStepForm = () => {
     }
   };
 
-  const prevStep = () => {
+  const prevStep = (e?: React.MouseEvent<HTMLButtonElement>) => {
+    // Prevent any default behavior
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     setStep((prev) => Math.max(prev - 1, 1));
   };
 
@@ -148,7 +160,16 @@ const MultiStepForm = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form 
+          onSubmit={handleSubmit}
+          onKeyDown={(e) => {
+            // Prevent Enter key from submitting the form in steps 1 and 2
+            if (e.key === 'Enter' && step < 3) {
+              e.preventDefault();
+            }
+          }}
+          className="space-y-6"
+        >
           {/* Step 1: Personal Info */}
           {step === 1 && (
             <div className="space-y-4 animate-fade-in">
@@ -394,13 +415,27 @@ const MultiStepForm = () => {
 
           <div className="flex justify-between pt-4">
             {step > 1 && (
-              <Button type="button" variant="outline" onClick={prevStep}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  prevStep(e);
+                }}
+              >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Voltar
               </Button>
             )}
             {step < 3 ? (
-              <Button type="button" onClick={nextStep} className="ml-auto">
+              <Button 
+                type="button" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  nextStep(e);
+                }}
+                className="ml-auto"
+              >
                 Próximo
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
