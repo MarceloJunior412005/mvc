@@ -60,16 +60,22 @@ const MultiStepForm = () => {
       fieldsToValidate.map((key) => [key, formData[key]])
     );
 
-    const result = quoteFormSchema.partial().safeParse(stepData);
+    const result = quoteFormSchema.safeParse(formData);
 
     if (!result.success) {
       const newErrors: Partial<Record<keyof QuoteFormData, string>> = {};
       result.error.errors.forEach((err) => {
         const field = err.path[0] as keyof QuoteFormData;
-        newErrors[field] = err.message;
+        // Only show errors for fields in the current step
+        if (fieldsToValidate.includes(field)) {
+          newErrors[field] = err.message;
+        }
       });
-      setErrors(newErrors);
-      return false;
+      
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return false;
+      }
     }
 
     return true;
