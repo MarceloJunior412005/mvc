@@ -38,13 +38,13 @@ const Header = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-1 md:py-2">
+      <div className="container mx-auto px-4 py-3 md:py-4">
         <div className="flex items-center justify-between">
           <a href="#inicio" className="flex items-center">
             <img 
               src="/arquivos_site/logo_site.png" 
               alt={`${COMPANY_INFO.name} - Logotipo`}
-              className="h-[90px] md:h-[112px] w-auto"
+              className="h-16 md:h-20 w-auto"
             />
           </a>
 
