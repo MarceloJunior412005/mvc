@@ -1,8 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Phone, Mail, Clock, Shield, Star, TrendingUp } from 'lucide-react';
 import { COMPANY_INFO } from '@/lib/constants';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import NewsletterSignup from './NewsletterSignup';
 
 const QuoteFormSidebar = () => {
   const benefits = [
@@ -20,20 +18,7 @@ const QuoteFormSidebar = () => {
     },
   ];
 
-  const faqs = [
-    {
-      question: 'Qual o prazo de entrega?',
-      answer: 'Os prazos variam conforme a distância e tipo de carga. Entregas expressas podem ser realizadas no mesmo dia ou em até 24h.',
-    },
-    {
-      question: 'Como acompanhar minha carga?',
-      answer: 'Você receberá um código de rastreamento e poderá acompanhar sua carga em tempo real através do nosso sistema.',
-    },
-    {
-      question: 'Quais tipos de carga transportam?',
-      answer: 'Transportamos cargas secas, refrigeradas, paletizadas e cargas soltas. Entre em contato para necessidades especiais.',
-    },
-  ];
+
 
   return (
     <div className="space-y-6">
@@ -85,27 +70,7 @@ const QuoteFormSidebar = () => {
         </CardContent>
       </Card>
 
-      <Card className="border-muted shadow-md">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Dúvidas Frequentes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Accordion type="single" collapsible className="w-full">
-            {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-sm font-medium text-left">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </CardContent>
-      </Card>
 
-      <NewsletterSignup />
     </div>
   );
 };

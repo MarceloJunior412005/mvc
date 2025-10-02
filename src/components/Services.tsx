@@ -9,13 +9,13 @@ const Services = () => {
       icon: Truck,
       title: 'Transporte Rodoviário',
       description: 'Transporte de cargas por todo território nacional com frota própria e parceiros qualificados.',
-      features: ['Carga seca', 'Carga refrigerada', 'Transporte especial'],
+      features: ['Carga Batida', 'Carga Paletizada', 'Transporte especial'],
     },
     {
       icon: MapPin,
       title: 'Entrega Expressa',
       description: 'Serviço de entrega rápida para cargas urgentes com rastreamento em tempo real.',
-      features: ['Same day', 'Next day', 'Rastreamento'],
+      features: ['Mesmo dia', 'Dia seguinte', 'Rastreamento'],
     },
     {
       icon: Clock,
@@ -33,13 +33,13 @@ const Services = () => {
       icon: Zap,
       title: 'Tecnologia Avançada',
       description: 'Sistema de rastreamento e monitoramento em tempo real para total controle.',
-      features: ['GPS tracking', 'App mobile', 'Alertas automáticos'],
+      features: ['Rastreador', 'Monitoramento', 'Alertas'],
     },
     {
       icon: Package,
       title: 'Armazenamento',
       description: 'Soluções de armazenagem segura para sua carga com controle total de estoque.',
-      features: ['Curta duração', 'Longa duração', 'Cross-docking'],
+      features: ['Curta duração', 'Longa duração', 'Segurança'],
     },
   ];
 

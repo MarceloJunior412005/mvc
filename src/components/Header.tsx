@@ -20,25 +20,25 @@ const Header = () => {
         scrolled ? 'shadow-md' : 'shadow-sm'
       }`}
     >
-      <div className="bg-primary text-primary-foreground py-2">
+      <div className="bg-primary text-primary-foreground py-1.5">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between text-xs md:text-sm">
+          <div className="flex items-center justify-between text-xs">
             <a 
               href={`tel:${COMPANY_INFO.phoneRaw}`}
               className="flex items-center space-x-1 hover:text-secondary transition-colors"
             >
-              <Phone className="h-3 w-3 md:h-4 md:w-4" />
+              <Phone className="h-3 w-3" />
               <span className="whitespace-nowrap">{COMPANY_INFO.phone}</span>
             </a>
             <div className="flex items-center space-x-1">
-              <Clock className="h-3 w-3 md:h-4 md:w-4" />
+              <Clock className="h-3 w-3" />
               <span className="whitespace-nowrap">{COMPANY_INFO.workingHours.weekdays}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-3 md:py-4">
+      <div className="container mx-auto px-4 py-2 md:py-3 ">
         <div className="flex items-center justify-between">
           <a href="#inicio" className="flex items-center">
             <img 
@@ -48,7 +48,7 @@ const Header = () => {
             />
           </a>
 
-          <nav className="hidden md:flex items-center space-x-8 lg:space-x-12">
+          <nav className="hidden md:flex items-center space-x-6 lg:space-x-8 text-sm">
             <a href="#inicio" className="text-foreground hover:text-primary transition-colors font-medium relative group">
               Início
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>

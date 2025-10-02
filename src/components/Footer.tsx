@@ -1,4 +1,4 @@
-import { MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, FileText } from 'lucide-react';
 import { COMPANY_INFO } from '@/lib/constants';
 import NewsletterSignup from './NewsletterSignup';
 
@@ -111,15 +111,14 @@ const Footer = () => {
                 </div>
               </div>
               <a
-                href={`tel:${COMPANY_INFO.phoneRaw}`}
-                className="flex items-center space-x-3 hover:text-secondary transition-colors"
+                className="flex items-center space-x-3 "
               >
                 <Phone className="h-4 w-4 text-secondary" />
                 <span>{COMPANY_INFO.phone}</span>
               </a>
               <a
-                href={`mailto:${COMPANY_INFO.email}`}
-                className="flex items-center space-x-3 min-w-0 hover:text-secondary transition-colors"
+
+                className="flex items-center space-x-3 min-w-0"
               >
                 <Mail className="h-4 w-4 text-secondary flex-shrink-0" />
                 <span className="break-words">{COMPANY_INFO.email}</span>
@@ -128,8 +127,11 @@ const Footer = () => {
                 <Clock className="h-4 w-4 mt-1 text-secondary" />
                 <div>
                   <p>{COMPANY_INFO.workingHours.weekdays}</p>
-                  <p>{COMPANY_INFO.workingHours.saturday}</p>
                 </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <FileText className="h-4 w-4 mt-1 text-secondary flex-shrink-0" />
+                <span>CNPJ: 60.372.296/0001-01</span>
               </div>
             </div>
           </div>
@@ -137,7 +139,7 @@ const Footer = () => {
 
         <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center">
           <p className="text-primary-foreground/60 text-sm">
-            © {COMPANY_INFO.founded} - {currentYear} {COMPANY_INFO.name}. Todos os direitos
+            © 1999 - {currentYear} {COMPANY_INFO.name}. Todos os direitos
             reservados.
           </p>
         </div>
