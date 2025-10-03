@@ -48,7 +48,7 @@ const Header = () => {
             />
           </a>
 
-          <nav className="hidden md:flex items-center space-x-6 lg:space-x-8 text-sm">
+          <nav className="hidden md:flex items-center space-x-6 lg:space-x-8 text-base">
             <a href="#inicio" className="text-foreground hover:text-primary transition-colors font-medium relative group">
               Início
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>

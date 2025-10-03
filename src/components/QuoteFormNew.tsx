@@ -8,7 +8,7 @@ const QuoteFormNew = () => {
       <div className="container mx-auto px-4">
         <ScrollReveal>
           <div className="text-center space-y-4 mb-16">
-            <h2 className="text-3xl lg:text-5xl font-bold text-foreground">
+            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
               Solicite seu Orçamento
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
